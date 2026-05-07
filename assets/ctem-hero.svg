@@ -1,0 +1,38 @@
+<svg width="1600" height="640" viewBox="0 0 1600 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">CTEM Leader Lab</title>
+  <desc id="desc">Dark grid hero banner for the CTEM Leader Lab project.</desc>
+  <rect width="1600" height="640" fill="#080d12"/>
+  <rect x="1" y="1" width="1598" height="638" rx="18" stroke="#1f2937" stroke-width="2"/>
+  <path d="M0 88H1600" stroke="#1f2937" stroke-width="2"/>
+  <path d="M0 552H1600" stroke="#0bbf45" stroke-opacity=".45" stroke-width="6"/>
+  <path d="M0 92H1600" stroke="#0bff55" stroke-width="6"/>
+  <g opacity=".42">
+    <path d="M200 88V552M400 88V552M600 88V552M800 88V552M1000 88V552M1200 88V552M1400 88V552" stroke="#0b5f24" stroke-width="1"/>
+    <path d="M0 168H1600M0 248H1600M0 328H1600M0 408H1600M0 488H1600" stroke="#0b5f24" stroke-width="1"/>
+  </g>
+  <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(800 282) rotate(90) scale(270 520)">
+    <stop stop-color="#0bff55" stop-opacity=".18"/>
+    <stop offset="1" stop-color="#0bff55" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="1600" height="640" fill="url(#glow)"/>
+  <g transform="translate(725 142)">
+    <circle cx="75" cy="75" r="52" stroke="#0bff55" stroke-width="8"/>
+    <path d="M18 76L91 55L71 78H132L58 102L79 78H18Z" fill="#0bff55"/>
+  </g>
+  <text x="800" y="300" text-anchor="middle" fill="#f8fafc" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="64" font-weight="800">CTEM Leader Lab</text>
+  <text x="800" y="352" text-anchor="middle" fill="#a6b1c2" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="30" font-weight="600">Continuous Threat Exposure Management Workbench</text>
+  <rect x="710" y="376" width="180" height="5" rx="3" fill="#22c55e" opacity=".85"/>
+  <g font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#0bff55">
+    <rect x="356" y="414" width="225" height="58" rx="29" stroke="#0bff55" stroke-width="2" fill="#06120b"/>
+    <text x="468.5" y="451" text-anchor="middle">5 CTEM Stages</text>
+    <rect x="606" y="414" width="246" height="58" rx="29" stroke="#0bff55" stroke-width="2" fill="#06120b"/>
+    <text x="729" y="451" text-anchor="middle">9 Risk Drivers</text>
+    <rect x="877" y="414" width="263" height="58" rx="29" stroke="#0bff55" stroke-width="2" fill="#06120b"/>
+    <text x="1008.5" y="451" text-anchor="middle">Validated Paths</text>
+    <rect x="1165" y="414" width="238" height="58" rx="29" stroke="#0bff55" stroke-width="2" fill="#06120b"/>
+    <text x="1284" y="451" text-anchor="middle">90-Day Plan</text>
+  </g>
+  <text x="800" y="534" text-anchor="middle" fill="#53627a" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" letter-spacing="3">
+    SCOPING - DISCOVERY - PRIORITIZATION - VALIDATION - MOBILIZATION
+  </text>
+</svg>

@@ -1,0 +1,38 @@
+name: Feature request
+description: Suggest an improvement to the CTEM Leader Lab.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+      description: What leader, practitioner, or learning problem does this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the change you would like.
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: CTEM stage
+      options:
+        - Scoping
+        - Discovery
+        - Prioritization
+        - Validation
+        - Mobilization
+        - Cross-stage
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Safety considerations
+      description: Does this add any risk of unsafe security guidance or misuse?
