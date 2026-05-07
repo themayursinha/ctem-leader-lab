@@ -1,38 +1,68 @@
 <svg width="1600" height="640" viewBox="0 0 1600 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">CTEM Leader Lab</title>
-  <desc id="desc">Dark grid hero banner for the CTEM Leader Lab project.</desc>
-  <rect width="1600" height="640" fill="#080d12"/>
-  <rect x="1" y="1" width="1598" height="638" rx="18" stroke="#1f2937" stroke-width="2"/>
-  <path d="M0 88H1600" stroke="#1f2937" stroke-width="2"/>
-  <path d="M0 552H1600" stroke="#0bbf45" stroke-opacity=".45" stroke-width="6"/>
-  <path d="M0 92H1600" stroke="#0bff55" stroke-width="6"/>
-  <g opacity=".42">
-    <path d="M200 88V552M400 88V552M600 88V552M800 88V552M1000 88V552M1200 88V552M1400 88V552" stroke="#0b5f24" stroke-width="1"/>
-    <path d="M0 168H1600M0 248H1600M0 328H1600M0 408H1600M0 488H1600" stroke="#0b5f24" stroke-width="1"/>
+  <desc id="desc">A polished dark hero banner with a shield, exposure lens, and validated attack path nodes for CTEM Leader Lab.</desc>
+  <defs>
+    <linearGradient id="border" x1="0" y1="0" x2="1600" y2="640" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38bdf8"/>
+      <stop offset=".52" stop-color="#34d399"/>
+      <stop offset="1" stop-color="#fbbf24"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(800 250) rotate(90) scale(360 620)">
+      <stop stop-color="#22d3ee" stop-opacity=".22"/>
+      <stop offset=".48" stop-color="#34d399" stop-opacity=".1"/>
+      <stop offset="1" stop-color="#020617" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="mark" x1="709" y1="104" x2="891" y2="292" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67e8f9"/>
+      <stop offset=".55" stop-color="#34d399"/>
+      <stop offset="1" stop-color="#fbbf24"/>
+    </linearGradient>
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.1 0 0 0 0 0.95 0 0 0 0 0.75 0 0 0 .5 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="640" rx="20" fill="#070b10"/>
+  <rect x="1" y="1" width="1598" height="638" rx="20" stroke="#263241" stroke-width="2"/>
+  <rect x="26" y="26" width="1548" height="588" rx="16" stroke="#111827" stroke-width="2"/>
+  <rect width="1600" height="640" fill="url(#halo)"/>
+
+  <g opacity=".36">
+    <path d="M160 88V552M320 88V552M480 88V552M640 88V552M800 88V552M960 88V552M1120 88V552M1280 88V552M1440 88V552" stroke="#174336" stroke-width="1"/>
+    <path d="M96 128H1504M96 208H1504M96 288H1504M96 368H1504M96 448H1504M96 528H1504" stroke="#174336" stroke-width="1"/>
   </g>
-  <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(800 282) rotate(90) scale(270 520)">
-    <stop stop-color="#0bff55" stop-opacity=".18"/>
-    <stop offset="1" stop-color="#0bff55" stop-opacity="0"/>
-  </radialGradient>
-  <rect width="1600" height="640" fill="url(#glow)"/>
-  <g transform="translate(725 142)">
-    <circle cx="75" cy="75" r="52" stroke="#0bff55" stroke-width="8"/>
-    <path d="M18 76L91 55L71 78H132L58 102L79 78H18Z" fill="#0bff55"/>
+
+  <path d="M96 92H1504" stroke="url(#border)" stroke-width="6" stroke-linecap="round"/>
+  <path d="M96 548H1504" stroke="url(#border)" stroke-opacity=".38" stroke-width="6" stroke-linecap="round"/>
+
+  <g filter="url(#softGlow)">
+    <path d="M800 100L878 128V202C878 249 844 283 800 304C756 283 722 249 722 202V128L800 100Z" fill="#0b1420" stroke="url(#mark)" stroke-width="5"/>
+    <circle cx="800" cy="190" r="58" stroke="url(#mark)" stroke-width="6"/>
+    <circle cx="800" cy="190" r="28" stroke="#67e8f9" stroke-opacity=".65" stroke-width="2"/>
+    <path d="M752 218C776 207 783 174 806 181C829 188 832 153 850 145" stroke="url(#mark)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="752" cy="218" r="9" fill="#020617" stroke="#67e8f9" stroke-width="5"/>
+    <circle cx="806" cy="181" r="9" fill="#020617" stroke="#34d399" stroke-width="5"/>
+    <circle cx="850" cy="145" r="9" fill="#020617" stroke="#fbbf24" stroke-width="5"/>
+    <path d="M770 241L787 258L832 216" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
-  <text x="800" y="300" text-anchor="middle" fill="#f8fafc" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="64" font-weight="800">CTEM Leader Lab</text>
-  <text x="800" y="352" text-anchor="middle" fill="#a6b1c2" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="30" font-weight="600">Continuous Threat Exposure Management Workbench</text>
-  <rect x="710" y="376" width="180" height="5" rx="3" fill="#22c55e" opacity=".85"/>
-  <g font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#0bff55">
-    <rect x="356" y="414" width="225" height="58" rx="29" stroke="#0bff55" stroke-width="2" fill="#06120b"/>
-    <text x="468.5" y="451" text-anchor="middle">5 CTEM Stages</text>
-    <rect x="606" y="414" width="246" height="58" rx="29" stroke="#0bff55" stroke-width="2" fill="#06120b"/>
-    <text x="729" y="451" text-anchor="middle">9 Risk Drivers</text>
-    <rect x="877" y="414" width="263" height="58" rx="29" stroke="#0bff55" stroke-width="2" fill="#06120b"/>
-    <text x="1008.5" y="451" text-anchor="middle">Validated Paths</text>
-    <rect x="1165" y="414" width="238" height="58" rx="29" stroke="#0bff55" stroke-width="2" fill="#06120b"/>
-    <text x="1284" y="451" text-anchor="middle">90-Day Plan</text>
+
+  <text x="800" y="350" text-anchor="middle" fill="#f8fafc" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="68" font-weight="850">CTEM Leader Lab</text>
+  <text x="800" y="402" text-anchor="middle" fill="#b8c4d4" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="29" font-weight="600">Business-first exposure decisions for security leaders</text>
+
+  <g font-family="Inter, Segoe UI, Arial, sans-serif" font-size="23" font-weight="800">
+    <rect x="337" y="444" width="214" height="56" rx="28" stroke="#38bdf8" stroke-opacity=".9" fill="#07131c"/>
+    <text x="444" y="480" text-anchor="middle" fill="#67e8f9">Crown Jewels</text>
+    <rect x="580" y="444" width="207" height="56" rx="28" stroke="#34d399" stroke-opacity=".9" fill="#071711"/>
+    <text x="683.5" y="480" text-anchor="middle" fill="#6ee7b7">Attack Paths</text>
+    <rect x="816" y="444" width="218" height="56" rx="28" stroke="#fbbf24" stroke-opacity=".9" fill="#171203"/>
+    <text x="925" y="480" text-anchor="middle" fill="#fde68a">Risk Decisions</text>
+    <rect x="1063" y="444" width="200" height="56" rx="28" stroke="#a78bfa" stroke-opacity=".9" fill="#120f1d"/>
+    <text x="1163" y="480" text-anchor="middle" fill="#ddd6fe">90-Day Plan</text>
   </g>
-  <text x="800" y="534" text-anchor="middle" fill="#53627a" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" letter-spacing="3">
+
+  <text x="800" y="555" text-anchor="middle" fill="#65758b" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="2">
     SCOPING - DISCOVERY - PRIORITIZATION - VALIDATION - MOBILIZATION
   </text>
 </svg>
