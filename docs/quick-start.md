@@ -44,6 +44,8 @@ If your API uses a different port:
 VITE_API_BASE_URL=http://localhost:8000 npm run dev
 ```
 
+If the backend is not running, the frontend falls back to static demo data in `frontend/public/api`. This keeps the GitHub Pages demo usable as a read-only scenario walkthrough.
+
 ## Verify
 
 ```bash

@@ -1,0 +1,73 @@
+[
+  {
+    "id": "path-ci-to-data",
+    "name": "Public secret to customer data path",
+    "objective": "Use leaked CI deployment authority to reach the customer data subnet.",
+    "business_service_id": "svc-payments",
+    "exposure_ids": [
+      "exp-ci-token",
+      "exp-cloud-sg"
+    ],
+    "status": "Validated",
+    "evidence_confidence": "High",
+    "blast_radius": "Potential write path into payment workloads and read path toward customer data services.",
+    "safe_validation_method": "Token was validated in a sandboxed runner; network reachability was confirmed through graph analysis.",
+    "steps": [
+      {
+        "order": 1,
+        "title": "Acquire deployment token",
+        "asset_id": "asset-ci",
+        "technique": "MITRE ATT&CK: Unsecured Credentials",
+        "validation": "Secret scanner and access review confirmed active deployment scope.",
+        "control_gap": "No automatic revocation for public-code secret exposure."
+      },
+      {
+        "order": 2,
+        "title": "Run deployment workflow",
+        "asset_id": "asset-ci",
+        "technique": "MITRE ATT&CK: Valid Accounts",
+        "validation": "Sandbox confirmed token can trigger deployment workflow actions.",
+        "control_gap": "Runner permissions are broader than the scoped service boundary."
+      },
+      {
+        "order": 3,
+        "title": "Reach production data subnet",
+        "asset_id": "asset-prod-vpc",
+        "technique": "MITRE ATT&CK: Network Service Discovery",
+        "validation": "Cloud graph shows CI-to-data-subnet path through inherited security group.",
+        "control_gap": "Segmentation policy does not separate build infrastructure from production data plane."
+      }
+    ]
+  },
+  {
+    "id": "path-sso-to-payments",
+    "name": "Privileged SSO compromise to payment operations",
+    "objective": "Compromise an admin session and alter payment operations configuration.",
+    "business_service_id": "svc-payments",
+    "exposure_ids": [
+      "exp-okta-mfa"
+    ],
+    "status": "Plausible",
+    "evidence_confidence": "Medium",
+    "blast_radius": "Privileged identity compromise could affect payment admin portals and deployment approvals.",
+    "safe_validation_method": "Policy review and tabletop emulation; no live credential capture performed.",
+    "steps": [
+      {
+        "order": 1,
+        "title": "Phish privileged contractor",
+        "asset_id": "asset-okta",
+        "technique": "MITRE ATT&CK: Phishing",
+        "validation": "MFA policy allows push approval for the affected group.",
+        "control_gap": "Privileged identities are not uniformly bound to phishing-resistant MFA."
+      },
+      {
+        "order": 2,
+        "title": "Approve privileged session",
+        "asset_id": "asset-pam",
+        "technique": "MITRE ATT&CK: Account Manipulation",
+        "validation": "Tabletop confirmed approval chain relies on identity group membership.",
+        "control_gap": "No compensating device trust requirement for contractors."
+      }
+    ]
+  }
+]

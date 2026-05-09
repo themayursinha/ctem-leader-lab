@@ -8,5 +8,7 @@ backend/__pycache__/
 backend/.pytest_cache/
 frontend/node_modules/
 frontend/dist/
+.playwright-cli/
+output/playwright/
 *.log
 .DS_Store

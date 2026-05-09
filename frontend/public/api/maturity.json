@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Scoping",
+    "score": 2,
+    "target": 4,
+    "current_state": "Critical services are known informally, but scope is not refreshed with business owners.",
+    "next_step": "Run a crown-jewel workshop with Payments, IAM, Platform, and GRC leaders."
+  },
+  {
+    "name": "Discovery",
+    "score": 3,
+    "target": 4,
+    "current_state": "Scanner and cloud data exist, but identity and SaaS exposures are not normalized.",
+    "next_step": "Create a single exposure taxonomy across CVE, cloud, identity, secrets, SaaS, and control gaps."
+  },
+  {
+    "name": "Prioritization",
+    "score": 2,
+    "target": 4,
+    "current_state": "Teams still negotiate urgency from CVSS and asset tags.",
+    "next_step": "Adopt CTEM decision outcomes with explicit business, threat, control, and validation drivers."
+  },
+  {
+    "name": "Validation",
+    "score": 1,
+    "target": 3,
+    "current_state": "Pen tests happen periodically, but validation evidence is not tied to remediation decisions.",
+    "next_step": "Define safe validation methods and evidence thresholds for Act and Attend decisions."
+  },
+  {
+    "name": "Mobilization",
+    "score": 2,
+    "target": 4,
+    "current_state": "Tickets are created, but ownership, risk acceptance, and retest are inconsistent.",
+    "next_step": "Create remediation SLAs, RACI, exception rules, and executive escalation paths."
+  }
+]

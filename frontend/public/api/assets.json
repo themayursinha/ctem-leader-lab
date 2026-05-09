@@ -1,0 +1,135 @@
+[
+  {
+    "id": "asset-payment-api",
+    "name": "Payment Gateway API",
+    "type": "Web Application",
+    "service_id": "svc-payments",
+    "owner": "Payments Engineering",
+    "environment": "Production",
+    "criticality": "Critical",
+    "crown_jewel": true,
+    "internet_exposed": true,
+    "reachable_from_internet": "Direct",
+    "tags": [
+      "pci",
+      "customer-facing",
+      "api"
+    ]
+  },
+  {
+    "id": "asset-customer-db",
+    "name": "Customer Data Store",
+    "type": "Database",
+    "service_id": "svc-payments",
+    "owner": "Data Platform",
+    "environment": "Production",
+    "criticality": "Critical",
+    "crown_jewel": true,
+    "internet_exposed": false,
+    "reachable_from_internet": "Indirect",
+    "tags": [
+      "pii",
+      "pci",
+      "crown-jewel"
+    ]
+  },
+  {
+    "id": "asset-okta",
+    "name": "Workforce SSO Tenant",
+    "type": "Identity Provider",
+    "service_id": "svc-identity",
+    "owner": "Identity Engineering",
+    "environment": "Production",
+    "criticality": "Critical",
+    "crown_jewel": true,
+    "internet_exposed": true,
+    "reachable_from_internet": "Direct",
+    "tags": [
+      "sso",
+      "mfa",
+      "privileged-access"
+    ]
+  },
+  {
+    "id": "asset-pam",
+    "name": "Privileged Access Vault",
+    "type": "Security Platform",
+    "service_id": "svc-identity",
+    "owner": "Security Engineering",
+    "environment": "Production",
+    "criticality": "Critical",
+    "crown_jewel": true,
+    "internet_exposed": false,
+    "reachable_from_internet": "Indirect",
+    "tags": [
+      "privileged-access",
+      "secrets"
+    ]
+  },
+  {
+    "id": "asset-ci",
+    "name": "Build Automation and CI Runners",
+    "type": "CI/CD",
+    "service_id": "svc-platform",
+    "owner": "Developer Experience",
+    "environment": "Shared Services",
+    "criticality": "High",
+    "crown_jewel": true,
+    "internet_exposed": true,
+    "reachable_from_internet": "Direct",
+    "tags": [
+      "source-code",
+      "deployment",
+      "supply-chain"
+    ]
+  },
+  {
+    "id": "asset-prod-vpc",
+    "name": "Production Cloud VPC",
+    "type": "Cloud Network",
+    "service_id": "svc-platform",
+    "owner": "Cloud Platform",
+    "environment": "Production",
+    "criticality": "High",
+    "crown_jewel": true,
+    "internet_exposed": false,
+    "reachable_from_internet": "Indirect",
+    "tags": [
+      "aws",
+      "network",
+      "production"
+    ]
+  },
+  {
+    "id": "asset-marketing-site",
+    "name": "Marketing Site",
+    "type": "Web Application",
+    "service_id": "svc-marketing",
+    "owner": "Digital Marketing",
+    "environment": "Production",
+    "criticality": "Medium",
+    "crown_jewel": false,
+    "internet_exposed": true,
+    "reachable_from_internet": "Direct",
+    "tags": [
+      "cms",
+      "public-web"
+    ]
+  },
+  {
+    "id": "asset-dev-wiki",
+    "name": "Internal Engineering Wiki",
+    "type": "Collaboration Tool",
+    "service_id": "svc-platform",
+    "owner": "Developer Experience",
+    "environment": "Internal",
+    "criticality": "Low",
+    "crown_jewel": false,
+    "internet_exposed": false,
+    "reachable_from_internet": "Isolated",
+    "tags": [
+      "internal",
+      "knowledge-base"
+    ]
+  }
+]

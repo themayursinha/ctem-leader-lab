@@ -1,0 +1,67 @@
+[
+  {
+    "id": "svc-payments",
+    "name": "Digital Payments",
+    "description": "Customer-facing payment authorization and settlement journey.",
+    "executive_owner": "Chief Revenue Officer",
+    "business_owner": "VP Payments Platform",
+    "criticality": "Critical",
+    "risk_appetite": "No validated critical path may remain open longer than 7 days.",
+    "customer_impact": "Payment outage or tampering affects revenue, trust, and regulatory reporting.",
+    "revenue_dependency": "Direct revenue capture for online channels.",
+    "crown_jewel_asset_ids": [
+      "asset-payment-api",
+      "asset-customer-db"
+    ],
+    "in_scope": true,
+    "scope_reason": "Highest revenue concentration and strongest attacker incentive."
+  },
+  {
+    "id": "svc-identity",
+    "name": "Workforce Identity",
+    "description": "SSO, privileged access, and identity governance for employees and contractors.",
+    "executive_owner": "Chief Information Security Officer",
+    "business_owner": "Director IAM",
+    "criticality": "Critical",
+    "risk_appetite": "Privileged identity exposure requires same-week validation and executive visibility.",
+    "customer_impact": "Compromised identity can unlock lateral movement into customer data systems.",
+    "revenue_dependency": "Indirect, but a failure enables enterprise-wide compromise.",
+    "crown_jewel_asset_ids": [
+      "asset-okta",
+      "asset-pam"
+    ],
+    "in_scope": true,
+    "scope_reason": "Identity is the most reusable control plane for attackers."
+  },
+  {
+    "id": "svc-platform",
+    "name": "Cloud Delivery Platform",
+    "description": "CI/CD, container runtime, and production cloud landing zone.",
+    "executive_owner": "Chief Technology Officer",
+    "business_owner": "VP Infrastructure",
+    "criticality": "High",
+    "risk_appetite": "Internet-reachable build or cloud control-plane exposures require rapid containment.",
+    "customer_impact": "Platform compromise can introduce malicious code or expose customer data.",
+    "revenue_dependency": "Supports all digital product delivery.",
+    "crown_jewel_asset_ids": [
+      "asset-ci",
+      "asset-prod-vpc"
+    ],
+    "in_scope": true,
+    "scope_reason": "Attack path bridge between engineering systems and production."
+  },
+  {
+    "id": "svc-marketing",
+    "name": "Public Marketing",
+    "description": "Corporate website, campaign microsites, analytics tags, and brand presence.",
+    "executive_owner": "Chief Marketing Officer",
+    "business_owner": "Director Digital Marketing",
+    "criticality": "Medium",
+    "risk_appetite": "Defacement and tracking exposure are managed on standard change windows unless chained.",
+    "customer_impact": "Brand trust and lead-generation impact, limited sensitive data processing.",
+    "revenue_dependency": "Indirect lead generation.",
+    "crown_jewel_asset_ids": [],
+    "in_scope": false,
+    "scope_reason": "Tracked, but not part of the first crown-jewel CTEM sprint."
+  }
+]

@@ -1,0 +1,62 @@
+{
+  "maturity_assessment": [
+    "Score each CTEM stage from 1-5 using current evidence, not aspiration.",
+    "Name the highest-friction handoff between security, IT, engineering, and business owners.",
+    "Choose one metric that proves exposure reduction, not activity volume."
+  ],
+  "crown_jewel_worksheet": [
+    "Name the business service and executive owner.",
+    "Identify crown-jewel assets, privileged identities, and externally reachable paths.",
+    "Define what exposure duration is unacceptable for this service.",
+    "List resolver teams and change windows before prioritization begins."
+  ],
+  "prioritization_rationale": [
+    "Start from business service impact and attacker path, then add vulnerability severity.",
+    "Escalate known exploited, internet-reachable, or identity-amplifying exposures.",
+    "Downgrade isolated findings when validation shows no plausible path to scoped services."
+  ],
+  "validation_evidence_pack": [
+    "State the validation method and safety boundary.",
+    "Capture exploitability, reachability, control performance, and blast radius evidence.",
+    "Attach retest criteria to every Act or Attend remediation action."
+  ],
+  "raci": [
+    {
+      "role": "CISO",
+      "responsibility": "Accountable for CTEM outcomes and risk acceptance policy."
+    },
+    {
+      "role": "Business Owner",
+      "responsibility": "Defines service criticality, impact tolerance, and remediation tradeoffs."
+    },
+    {
+      "role": "Security Engineering",
+      "responsibility": "Owns scoring logic, validation evidence, and exposure quality."
+    },
+    {
+      "role": "Resolver Team",
+      "responsibility": "Owns remediation delivery and retest readiness."
+    },
+    {
+      "role": "GRC",
+      "responsibility": "Tracks exceptions, control evidence, and executive reporting."
+    }
+  ],
+  "roadmap_30_60_90": [
+    {
+      "window": "30 days",
+      "outcome": "Define scope and decision model",
+      "actions": "Run crown-jewel workshop, publish exposure taxonomy, and agree on Act/Attend/Monitor/Track definitions."
+    },
+    {
+      "window": "60 days",
+      "outcome": "Validate top exposure paths",
+      "actions": "Normalize scanner/cloud/identity data, run safe validation on top paths, and attach evidence packs to tickets."
+    },
+    {
+      "window": "90 days",
+      "outcome": "Mobilize and report exposure reduction",
+      "actions": "Operationalize SLAs, risk acceptance, retest, executive dashboards, and recurring CTEM review cadence."
+    }
+  ]
+}

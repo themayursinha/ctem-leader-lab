@@ -1,0 +1,386 @@
+[
+  {
+    "exposure_id": "exp-payment-edge",
+    "asset_id": "asset-payment-api",
+    "service_id": "svc-payments",
+    "title": "Exploited edge framework vulnerability on payment API",
+    "description": "The payment API runs a vulnerable framework version with public exploit activity and internet reachability.",
+    "exposure_type": "CVE",
+    "severity": "Critical",
+    "decision": "Act",
+    "ctem_score": 100,
+    "rationale": "Act because exploited edge framework vulnerability on payment api has credible evidence, meaningful attacker utility, and a plausible path into Digital Payments.",
+    "why_it_matters": "This exposure can influence a crown-jewel path for Digital Payments, so backlog age is the wrong primary metric.",
+    "next_action": "Apply emergency patch or virtual patch, validate WAF coverage, and retest externally.",
+    "score_drivers": [
+      {
+        "name": "Business criticality",
+        "value": 22,
+        "explanation": "Payment Gateway API supports a critical business service."
+      },
+      {
+        "name": "Internet reachability",
+        "value": 13,
+        "explanation": "Reachability is direct from external entry points."
+      },
+      {
+        "name": "Known exploitation",
+        "value": 18,
+        "explanation": "Known exploited signal present."
+      },
+      {
+        "name": "Exploit likelihood",
+        "value": 15,
+        "explanation": "EPSS-style probability is 92%."
+      },
+      {
+        "name": "Identity or privilege amplification",
+        "value": 3,
+        "explanation": "Identity amplification rated 1/5."
+      },
+      {
+        "name": "Control weakness",
+        "value": 9,
+        "explanation": "Preventive or detective control gap rated 3/5."
+      },
+      {
+        "name": "Attack-path proximity",
+        "value": 14,
+        "explanation": "Exposure proximity to crown jewels is crown jewel."
+      },
+      {
+        "name": "Remediation feasibility",
+        "value": 3,
+        "explanation": "Remediation effort is medium, shaping near-term mobilization."
+      },
+      {
+        "name": "Evidence confidence",
+        "value": 7,
+        "explanation": "Validation evidence confidence is high."
+      }
+    ],
+    "validation_evidence": "External attack surface validation confirmed vulnerable version exposure without executing destructive payloads.",
+    "owner": "Payments Engineering",
+    "sla": "7 days"
+  },
+  {
+    "exposure_id": "exp-ci-token",
+    "asset_id": "asset-ci",
+    "service_id": "svc-platform",
+    "title": "Leaked deployment token in public repository",
+    "description": "A token with deployment scope was discovered in a public code history fork.",
+    "exposure_type": "Secret",
+    "severity": "Medium",
+    "decision": "Act",
+    "ctem_score": 89,
+    "rationale": "Act because leaked deployment token in public repository has credible evidence, meaningful attacker utility, and a plausible path into Cloud Delivery Platform.",
+    "why_it_matters": "This exposure can influence a crown-jewel path for Cloud Delivery Platform, so backlog age is the wrong primary metric.",
+    "next_action": "Revoke token, rotate downstream credentials, constrain runner permissions, and add deploy-token policy guardrails.",
+    "score_drivers": [
+      {
+        "name": "Business criticality",
+        "value": 16,
+        "explanation": "Build Automation and CI Runners supports a high business service."
+      },
+      {
+        "name": "Internet reachability",
+        "value": 13,
+        "explanation": "Reachability is direct from external entry points."
+      },
+      {
+        "name": "Known exploitation",
+        "value": 0,
+        "explanation": "No known exploited signal in the scenario."
+      },
+      {
+        "name": "Exploit likelihood",
+        "value": 7,
+        "explanation": "EPSS-style probability is 42%."
+      },
+      {
+        "name": "Identity or privilege amplification",
+        "value": 15,
+        "explanation": "Identity amplification rated 5/5."
+      },
+      {
+        "name": "Control weakness",
+        "value": 12,
+        "explanation": "Preventive or detective control gap rated 4/5."
+      },
+      {
+        "name": "Attack-path proximity",
+        "value": 14,
+        "explanation": "Exposure proximity to crown jewels is crown jewel."
+      },
+      {
+        "name": "Remediation feasibility",
+        "value": 5,
+        "explanation": "Remediation effort is low, shaping near-term mobilization."
+      },
+      {
+        "name": "Evidence confidence",
+        "value": 7,
+        "explanation": "Validation evidence confidence is high."
+      }
+    ],
+    "validation_evidence": "Secret scanning reproduced the token pattern and confirmed active permissions in a sandboxed validation.",
+    "owner": "Developer Experience",
+    "sla": "72 hours"
+  },
+  {
+    "exposure_id": "exp-okta-mfa",
+    "asset_id": "asset-okta",
+    "service_id": "svc-identity",
+    "title": "Privileged SSO group lacks phishing-resistant MFA",
+    "description": "Contractor admin group can approve privileged sessions with push MFA only.",
+    "exposure_type": "Identity",
+    "severity": "High",
+    "decision": "Act",
+    "ctem_score": 89,
+    "rationale": "Act because privileged sso group lacks phishing-resistant mfa has credible evidence, meaningful attacker utility, and a plausible path into Workforce Identity.",
+    "why_it_matters": "Identity weakness can turn a contained technical issue into cross-service access.",
+    "next_action": "Move privileged group to phishing-resistant MFA, require device posture, and retest access policy.",
+    "score_drivers": [
+      {
+        "name": "Business criticality",
+        "value": 22,
+        "explanation": "Workforce SSO Tenant supports a critical business service."
+      },
+      {
+        "name": "Internet reachability",
+        "value": 13,
+        "explanation": "Reachability is direct from external entry points."
+      },
+      {
+        "name": "Known exploitation",
+        "value": 0,
+        "explanation": "No known exploited signal in the scenario."
+      },
+      {
+        "name": "Exploit likelihood",
+        "value": 6,
+        "explanation": "EPSS-style probability is 36%."
+      },
+      {
+        "name": "Identity or privilege amplification",
+        "value": 15,
+        "explanation": "Identity amplification rated 5/5."
+      },
+      {
+        "name": "Control weakness",
+        "value": 15,
+        "explanation": "Preventive or detective control gap rated 5/5."
+      },
+      {
+        "name": "Attack-path proximity",
+        "value": 8,
+        "explanation": "Exposure proximity to crown jewels is same service."
+      },
+      {
+        "name": "Remediation feasibility",
+        "value": 3,
+        "explanation": "Remediation effort is medium, shaping near-term mobilization."
+      },
+      {
+        "name": "Evidence confidence",
+        "value": 7,
+        "explanation": "Validation evidence confidence is high."
+      }
+    ],
+    "validation_evidence": "Identity posture review found 18 privileged users outside the phishing-resistant MFA policy.",
+    "owner": "Identity Engineering",
+    "sla": "14 days"
+  },
+  {
+    "exposure_id": "exp-cloud-sg",
+    "asset_id": "asset-prod-vpc",
+    "service_id": "svc-platform",
+    "title": "Over-permissive security group bridges CI runners to customer data subnet",
+    "description": "Shared CI runners can initiate traffic to the production data subnet through an inherited cloud rule.",
+    "exposure_type": "Cloud",
+    "severity": "High",
+    "decision": "Attend",
+    "ctem_score": 68,
+    "rationale": "Attend because over-permissive security group bridges ci runners to customer data subnet affects a scoped service and needs leadership-backed coordination before the exposure ages into unacceptable risk.",
+    "why_it_matters": "This exposure can influence a crown-jewel path for Cloud Delivery Platform, so backlog age is the wrong primary metric.",
+    "next_action": "Restrict CI runner egress, segment production data subnet, and add cloud policy-as-code checks.",
+    "score_drivers": [
+      {
+        "name": "Business criticality",
+        "value": 16,
+        "explanation": "Production Cloud VPC supports a high business service."
+      },
+      {
+        "name": "Internet reachability",
+        "value": 7,
+        "explanation": "Reachability is indirect from external entry points."
+      },
+      {
+        "name": "Known exploitation",
+        "value": 0,
+        "explanation": "No known exploited signal in the scenario."
+      },
+      {
+        "name": "Exploit likelihood",
+        "value": 3,
+        "explanation": "EPSS-style probability is 21%."
+      },
+      {
+        "name": "Identity or privilege amplification",
+        "value": 6,
+        "explanation": "Identity amplification rated 2/5."
+      },
+      {
+        "name": "Control weakness",
+        "value": 15,
+        "explanation": "Preventive or detective control gap rated 5/5."
+      },
+      {
+        "name": "Attack-path proximity",
+        "value": 14,
+        "explanation": "Exposure proximity to crown jewels is crown jewel."
+      },
+      {
+        "name": "Remediation feasibility",
+        "value": 3,
+        "explanation": "Remediation effort is medium, shaping near-term mobilization."
+      },
+      {
+        "name": "Evidence confidence",
+        "value": 4,
+        "explanation": "Validation evidence confidence is medium."
+      }
+    ],
+    "validation_evidence": "Cloud graph analysis showed path reachability; packet-level validation is scheduled with platform approval.",
+    "owner": "Cloud Platform",
+    "sla": "14 days"
+  },
+  {
+    "exposure_id": "exp-marketing-hsts",
+    "asset_id": "asset-marketing-site",
+    "service_id": "svc-marketing",
+    "title": "HSTS missing on marketing site",
+    "description": "Public marketing site does not enforce HSTS, creating downgrade risk for site visitors.",
+    "exposure_type": "Control Gap",
+    "severity": "Medium",
+    "decision": "Monitor",
+    "ctem_score": 42,
+    "rationale": "Monitor because the issue is real, but current evidence does not show an urgent path from Marketing Site to a crown-jewel outcome.",
+    "why_it_matters": "The exposure is useful context for posture management, but it is not the top path to business harm.",
+    "next_action": "Add HSTS with preload-ready configuration through the CDN change workflow.",
+    "score_drivers": [
+      {
+        "name": "Business criticality",
+        "value": 10,
+        "explanation": "Marketing Site supports a medium business service."
+      },
+      {
+        "name": "Internet reachability",
+        "value": 13,
+        "explanation": "Reachability is direct from external entry points."
+      },
+      {
+        "name": "Known exploitation",
+        "value": 0,
+        "explanation": "No known exploited signal in the scenario."
+      },
+      {
+        "name": "Exploit likelihood",
+        "value": 1,
+        "explanation": "EPSS-style probability is 8%."
+      },
+      {
+        "name": "Identity or privilege amplification",
+        "value": 0,
+        "explanation": "Identity amplification rated 0/5."
+      },
+      {
+        "name": "Control weakness",
+        "value": 6,
+        "explanation": "Preventive or detective control gap rated 2/5."
+      },
+      {
+        "name": "Attack-path proximity",
+        "value": 0,
+        "explanation": "Exposure proximity to crown jewels is none."
+      },
+      {
+        "name": "Remediation feasibility",
+        "value": 5,
+        "explanation": "Remediation effort is low, shaping near-term mobilization."
+      },
+      {
+        "name": "Evidence confidence",
+        "value": 7,
+        "explanation": "Validation evidence confidence is high."
+      }
+    ],
+    "validation_evidence": "Header scan confirmed HSTS is absent from production responses.",
+    "owner": "Digital Marketing",
+    "sla": "30 days"
+  },
+  {
+    "exposure_id": "exp-dev-wiki-cve",
+    "asset_id": "asset-dev-wiki",
+    "service_id": "svc-platform",
+    "title": "High CVSS library issue on isolated engineering wiki",
+    "description": "A high-severity library issue exists on an internal wiki with no known exploit path to scoped services.",
+    "exposure_type": "CVE",
+    "severity": "High",
+    "decision": "Track",
+    "ctem_score": 12,
+    "rationale": "Track through normal maintenance because Internal Engineering Wiki is isolated or low-context for the current CTEM sprint.",
+    "why_it_matters": "Validation currently shows isolation, which lets leaders protect remediation capacity for higher-risk paths.",
+    "next_action": "Patch in normal maintenance window and continue monitoring exploit intelligence.",
+    "score_drivers": [
+      {
+        "name": "Business criticality",
+        "value": 4,
+        "explanation": "Internal Engineering Wiki supports a low business service."
+      },
+      {
+        "name": "Internet reachability",
+        "value": 0,
+        "explanation": "Reachability is isolated from external entry points."
+      },
+      {
+        "name": "Known exploitation",
+        "value": 0,
+        "explanation": "No known exploited signal in the scenario."
+      },
+      {
+        "name": "Exploit likelihood",
+        "value": 0,
+        "explanation": "EPSS-style probability is 3%."
+      },
+      {
+        "name": "Identity or privilege amplification",
+        "value": 0,
+        "explanation": "Identity amplification rated 0/5."
+      },
+      {
+        "name": "Control weakness",
+        "value": 3,
+        "explanation": "Preventive or detective control gap rated 1/5."
+      },
+      {
+        "name": "Attack-path proximity",
+        "value": 0,
+        "explanation": "Exposure proximity to crown jewels is none."
+      },
+      {
+        "name": "Remediation feasibility",
+        "value": 1,
+        "explanation": "Remediation effort is high, shaping near-term mobilization."
+      },
+      {
+        "name": "Evidence confidence",
+        "value": 4,
+        "explanation": "Validation evidence confidence is medium."
+      }
+    ],
+    "validation_evidence": "Authenticated scanner confirmed version; network review shows no production reachability.",
+    "owner": "Developer Experience",
+    "sla": "Standard maintenance"
+  }
+]

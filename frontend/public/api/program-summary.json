@@ -1,0 +1,44 @@
+{
+  "organization": "Northstar Financial Services",
+  "goal": "Move from vulnerability backlog management to validated exposure reduction for crown-jewel services.",
+  "maturity_current": 2.0,
+  "maturity_target": 3.8,
+  "metrics": {
+    "scoped_services": 3,
+    "crown_jewel_assets": 6,
+    "raw_exposures": 6,
+    "act_decisions": 3,
+    "attend_decisions": 1,
+    "validated_attack_paths": 1,
+    "sla_at_risk": 2,
+    "exposure_reduction_goal": "35% validated critical-path reduction in 90 days"
+  },
+  "operating_principles": [
+    "Scope starts with business services and crown jewels, not scanner coverage.",
+    "Prioritization explains why an exposure matters and what evidence supports action.",
+    "Validation proves exploitability, reachability, control performance, and blast radius safely.",
+    "Mobilization assigns accountable owners, SLAs, retest criteria, and exception paths."
+  ],
+  "cycle": [
+    {
+      "stage": "Scoping",
+      "leader_question": "Which business services deserve scarce remediation capacity first?"
+    },
+    {
+      "stage": "Discovery",
+      "leader_question": "What exposures exist across technology, identity, cloud, SaaS, and controls?"
+    },
+    {
+      "stage": "Prioritization",
+      "leader_question": "Which exposures create the most credible path to business harm?"
+    },
+    {
+      "stage": "Validation",
+      "leader_question": "What evidence proves the exposure is exploitable or blocked?"
+    },
+    {
+      "stage": "Mobilization",
+      "leader_question": "Who will fix, accept, retest, or escalate the risk?"
+    }
+  ]
+}

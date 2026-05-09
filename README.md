@@ -19,10 +19,19 @@
 
 <p align="center">
   <img alt="Version" src="https://img.shields.io/badge/version-v0.1.0-00d084">
+  <a href="https://github.com/themayursinha/ctem-leader-lab/actions/workflows/ci.yml">
+    <img alt="CI" src="https://github.com/themayursinha/ctem-leader-lab/actions/workflows/ci.yml/badge.svg">
+  </a>
   <img alt="Backend" src="https://img.shields.io/badge/backend-FastAPI-009688">
   <img alt="Frontend" src="https://img.shields.io/badge/frontend-React%20%2B%20Vite-61dafb">
   <img alt="CTEM" src="https://img.shields.io/badge/CTEM-Leader%20Lab-00d084">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green">
+</p>
+
+<p align="center">
+  <a href="https://themayursinha.github.io/ctem-leader-lab/">Live Demo</a> ·
+  <a href="./docs/quick-start.md">Local Setup</a> ·
+  <a href="./CHANGELOG.md">Release Notes</a>
 </p>
 
 ---
@@ -58,6 +67,26 @@ npm run dev
 ```
 
 Open `http://localhost:5173`.
+
+The frontend also includes static demo data under `frontend/public/api`, so the GitHub Pages build works without a running backend.
+
+## Screenshots
+
+### Executive Dashboard
+
+![CTEM Leader Lab dashboard](./assets/screenshots/dashboard.png)
+
+### Prioritization
+
+![CTEM prioritization workflow](./assets/screenshots/prioritization.png)
+
+### Validation
+
+![CTEM validation workflow](./assets/screenshots/validation.png)
+
+### Mobilization
+
+![CTEM mobilization workflow](./assets/screenshots/mobilization.png)
 
 ## What Makes It Different
 
