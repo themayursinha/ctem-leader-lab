@@ -1,6 +1,17 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 async function getJson(path) {
+  const staticName = path.replace('/api/', '');
+  const staticUrl = `${import.meta.env.BASE_URL}api/${staticName}.json`;
+
+  if (!API_BASE_URL) {
+    const staticResponse = await fetch(staticUrl);
+    if (!staticResponse.ok) {
+      throw new Error(`Static API request failed: ${staticResponse.status} ${staticUrl}`);
+    }
+    return staticResponse.json();
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}${path}`);
     if (!response.ok) {
@@ -8,8 +19,7 @@ async function getJson(path) {
     }
     return response.json();
   } catch (error) {
-    const staticName = path.replace('/api/', '');
-    const staticResponse = await fetch(`${import.meta.env.BASE_URL}api/${staticName}.json`);
+    const staticResponse = await fetch(staticUrl);
     if (!staticResponse.ok) {
       throw error;
     }
