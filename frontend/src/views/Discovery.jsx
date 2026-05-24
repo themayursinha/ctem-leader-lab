@@ -134,14 +134,14 @@ const Discovery = () => {
         </div>
         <TableSearch value={search} onChange={setSearch} placeholder="Search exposures..." />
         <div className="table-wrap">
-          <table className="data-table">
+          <table className="data-table" aria-label="Exposure inventory">
             <thead>
               <tr>
-                <th className="sortable" onClick={() => handleSort('title')}>Exposure {sortIcon('title')}</th>
-                <th className="sortable" onClick={() => handleSort('exposure_type')}>Type {sortIcon('exposure_type')}</th>
+                <th className="sortable" onClick={() => handleSort('title')} aria-sort={sortKey === 'title' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>Exposure {sortIcon('title')}</th>
+                <th className="sortable" onClick={() => handleSort('exposure_type')} aria-sort={sortKey === 'exposure_type' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>Type {sortIcon('exposure_type')}</th>
                 <th>Asset</th>
                 <th>Service</th>
-                <th className="sortable" onClick={() => handleSort('severity')}>Severity {sortIcon('severity')}</th>
+                <th className="sortable" onClick={() => handleSort('severity')} aria-sort={sortKey === 'severity' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>Severity {sortIcon('severity')}</th>
                 <th>Threat signal</th>
                 <th>Evidence</th>
               </tr>

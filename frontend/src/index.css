@@ -849,26 +849,97 @@ dd {
   color: var(--muted);
 }
 
+/* ── Skip Link ── */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 12px;
+  z-index: 9999;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 12px 18px;
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+/* ── Hamburger ── */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1100;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.hamburger:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
 @media (max-width: 1100px) {
   .app-container {
     display: block;
   }
 
+  .hamburger {
+    display: flex;
+  }
+
   .sidebar {
-    position: static;
-    width: 100%;
-    height: auto;
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
+    position: fixed;
+    top: 0;
+    left: -300px;
+    z-index: 1000;
+    width: 280px;
+    height: 100vh;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+    background: #15171b;
+    transition: left 0.2s ease;
+  }
+
+  .sidebar-open {
+    left: 0;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .main-content {
+    padding-top: 68px;
   }
 
   .sidebar-nav {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    display: flex;
+    flex-direction: column;
   }
 
   .nav-section-label {
-    grid-column: 1 / -1;
+    grid-column: initial;
   }
 
   .split-grid,

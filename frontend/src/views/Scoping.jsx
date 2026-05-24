@@ -160,12 +160,12 @@ const Scoping = () => {
         </div>
         <TableSearch value={search} onChange={setSearch} placeholder="Search assets..." />
         <div className="table-wrap">
-          <table className="data-table">
+          <table className="data-table" aria-label="Asset inventory">
             <thead>
               <tr>
-                <th className="sortable" onClick={() => handleSort('name')}>Asset {sortIcon('name')}</th>
+                  <th className="sortable" onClick={() => handleSort('name')} aria-sort={sortKey === 'name' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>Asset {sortIcon('name')}</th>
                 <th>Service</th>
-                <th className="sortable" onClick={() => handleSort('owner')}>Owner {sortIcon('owner')}</th>
+                <th className="sortable" onClick={() => handleSort('owner')} aria-sort={sortKey === 'owner' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>Owner {sortIcon('owner')}</th>
                 <th>Exposure</th>
                 <th><Tooltip label="An asset so critical to the business that its compromise would cause significant operational or reputational harm">Crown jewel</Tooltip></th>
               </tr>

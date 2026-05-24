@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   Activity,
@@ -8,6 +8,7 @@ import {
   Crosshair,
   LayoutDashboard,
   ListOrdered,
+  Menu,
   Search,
   ShieldAlert,
   Workflow,
@@ -44,6 +45,11 @@ const DecisionBadge = ({ value }) => (
 
 const WelcomeModal = () => {
   const [visible, setVisible] = useState(!localStorage.getItem(WELCOME_KEY));
+  const welcomeRef = useRef(null);
+
+  useEffect(() => {
+    if (visible) welcomeRef.current?.focus();
+  }, [visible]);
 
   const dismiss = () => {
     localStorage.setItem(WELCOME_KEY, 'true');
@@ -54,8 +60,8 @@ const WelcomeModal = () => {
 
   return (
     <div className="modal-overlay" onClick={dismiss}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <h2>Welcome to CTEM Leader Lab</h2>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Welcome">
+        <h2 tabIndex={-1} ref={welcomeRef}>Welcome to CTEM Leader Lab</h2>
         <p className="modal-subtitle">An interactive workbench for security leaders moving from vulnerability management to Continuous Threat Exposure Management.</p>
         <div className="modal-features">
           <div className="modal-feature">
@@ -93,7 +99,7 @@ const DemoBanner = () => {
   if (!visible) return null;
 
   return (
-    <div className="demo-banner">
+    <div className="demo-banner" role="alert">
       <span>This is a demo with fictional data. Use it to explore CTEM workflows — no real systems or data are connected.</span>
       <button className="demo-banner-close" onClick={dismiss} aria-label="Dismiss demo notice">&times;</button>
     </div>
@@ -240,12 +246,12 @@ const Dashboard = () => {
   );
 };
 
-const SidebarItem = ({ to, icon: Icon, label }) => {
+const SidebarItem = ({ to, icon: Icon, label, onClick }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
   return (
-    <Link to={to} className={`nav-item ${isActive ? 'active' : ''}`}>
-      <Icon size={20} />
+    <Link to={to} className={`nav-item ${isActive ? 'active' : ''}`} onClick={onClick} aria-current={isActive ? 'page' : undefined}>
+      <Icon size={20} aria-hidden="true" />
       <span>{label}</span>
     </Link>
   );
@@ -253,47 +259,77 @@ const SidebarItem = ({ to, icon: Icon, label }) => {
 
 const AppContent = () => {
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const mainRef = useRef(null);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    mainRef.current?.focus();
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (sidebarOpen) {
+      menuRef.current?.focus();
+    }
+  }, [sidebarOpen]);
 
   return (
     <div className="app-container">
-      <aside className="sidebar">
+      <button className="skip-link" onClick={() => mainRef.current?.focus()}>
+        Skip to content
+      </button>
+
+      <button
+        className="hamburger"
+        onClick={() => setSidebarOpen((prev) => !prev)}
+        aria-label={sidebarOpen ? 'Close navigation menu' : 'Open navigation menu'}
+        aria-expanded={sidebarOpen}
+        ref={menuRef}
+      >
+        <Menu size={22} />
+      </button>
+
+      {sidebarOpen && <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />}
+
+      <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`} aria-label="Main navigation">
         <div className="sidebar-header">
-          <h1><ShieldAlert size={22} /> CTEM Leader Lab</h1>
+          <h1><ShieldAlert size={22} aria-hidden="true" /> CTEM Leader Lab</h1>
           <p>Exposure reduction workbench</p>
         </div>
         <nav className="sidebar-nav">
-          <SidebarItem to="/" icon={LayoutDashboard} label="Dashboard" />
+          <SidebarItem to="/" icon={LayoutDashboard} label="Dashboard" onClick={() => setSidebarOpen(false)} />
           <div className="nav-section-label">CTEM Stages</div>
-          <SidebarItem to="/scoping" icon={Crosshair} label="1. Scoping" />
-          <SidebarItem to="/discovery" icon={Search} label="2. Discovery" />
-          <SidebarItem to="/prioritization" icon={ListOrdered} label="3. Prioritization" />
-          <SidebarItem to="/validation" icon={Activity} label="4. Validation" />
-          <SidebarItem to="/mobilization" icon={Workflow} label="5. Mobilization" />
+          <SidebarItem to="/scoping" icon={Crosshair} label="1. Scoping" onClick={() => setSidebarOpen(false)} />
+          <SidebarItem to="/discovery" icon={Search} label="2. Discovery" onClick={() => setSidebarOpen(false)} />
+          <SidebarItem to="/prioritization" icon={ListOrdered} label="3. Prioritization" onClick={() => setSidebarOpen(false)} />
+          <SidebarItem to="/validation" icon={Activity} label="4. Validation" onClick={() => setSidebarOpen(false)} />
+          <SidebarItem to="/mobilization" icon={Workflow} label="5. Mobilization" onClick={() => setSidebarOpen(false)} />
           <div className="nav-section-label">Takeaway</div>
-          <SidebarItem to="/workshop-pack" icon={ClipboardList} label="Workshop Pack" />
+          <SidebarItem to="/workshop-pack" icon={ClipboardList} label="Workshop Pack" onClick={() => setSidebarOpen(false)} />
           <div className="nav-section-label">Workspace</div>
-          <SidebarItem to="/sessions" icon={Bookmark} label="Sessions" />
+          <SidebarItem to="/sessions" icon={Bookmark} label="Sessions" onClick={() => setSidebarOpen(false)} />
           <div className="nav-section-label">Reference</div>
-          <SidebarItem to="/guide" icon={Book} label="User Guide" />
+          <SidebarItem to="/guide" icon={Book} label="User Guide" onClick={() => setSidebarOpen(false)} />
         </nav>
       </aside>
-      <main className="main-content">
+
+      <main className="main-content" ref={mainRef} tabIndex={-1}>
         <DemoBanner />
         <Breadcrumbs pathname={location.pathname} />
-          <WelcomeModal />
-          <ErrorBoundary>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/scoping" element={<Scoping />} />
-              <Route path="/discovery" element={<Discovery />} />
-              <Route path="/prioritization" element={<Prioritization DecisionBadge={DecisionBadge} />} />
-              <Route path="/validation" element={<Validation />} />
-              <Route path="/mobilization" element={<Mobilization DecisionBadge={DecisionBadge} />} />
-              <Route path="/workshop-pack" element={<WorkshopPack />} />
-              <Route path="/sessions" element={<Sessions />} />
-              <Route path="/guide" element={<Guide />} />
-            </Routes>
-          </ErrorBoundary>
+        <WelcomeModal />
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/scoping" element={<Scoping />} />
+            <Route path="/discovery" element={<Discovery />} />
+            <Route path="/prioritization" element={<Prioritization DecisionBadge={DecisionBadge} />} />
+            <Route path="/validation" element={<Validation />} />
+            <Route path="/mobilization" element={<Mobilization DecisionBadge={DecisionBadge} />} />
+            <Route path="/workshop-pack" element={<WorkshopPack />} />
+            <Route path="/sessions" element={<Sessions />} />
+            <Route path="/guide" element={<Guide />} />
+          </Routes>
+        </ErrorBoundary>
       </main>
     </div>
   );

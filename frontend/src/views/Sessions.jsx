@@ -151,6 +151,7 @@ const Sessions = () => {
             type="button"
             onClick={handleSave}
             disabled={saving || !sessionName.trim()}
+            aria-label="Save current session"
           >
             {saving ? <Loader size={16} className="spin" /> : <Save size={16} />}
             <span>{saving ? 'Saving...' : 'Save Session'}</span>
@@ -171,7 +172,7 @@ const Sessions = () => {
           <div className="notice-panel">No saved sessions yet.</div>
         ) : (
           <div className="table-wrap">
-            <table className="data-table">
+            <table className="data-table" aria-label="Saved workshop sessions">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -193,6 +194,7 @@ const Sessions = () => {
                           type="button"
                           onClick={() => handleLoad(session.id, session.name)}
                           disabled={loading === session.id}
+                          aria-label={`Load session "${session.name}"`}
                         >
                           {loading === session.id ? <Loader size={14} className="spin" /> : <Upload size={14} />}
                           <span>Load</span>
@@ -202,6 +204,7 @@ const Sessions = () => {
                           type="button"
                           onClick={() => setConfirmDelete({ id: session.id, name: session.name })}
                           disabled={deleting === session.id}
+                          aria-label={`Delete session "${session.name}"`}
                         >
                           <Trash2 size={14} />
                           <span>Delete</span>

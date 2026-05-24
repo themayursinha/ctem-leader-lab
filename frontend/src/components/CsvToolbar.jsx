@@ -130,6 +130,7 @@ const CsvToolbar = ({
           type="button"
           onClick={handleExport}
           disabled={busy}
+          aria-label={`Export ${label} to CSV`}
         >
           <Download size={16} />
           <span>Export {label}</span>
@@ -140,6 +141,7 @@ const CsvToolbar = ({
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={busy}
+          aria-label={`Import ${label} from CSV`}
         >
           <Upload size={16} />
           <span>Import {label}</span>
@@ -150,12 +152,14 @@ const CsvToolbar = ({
           accept=".csv"
           style={{ display: 'none' }}
           onChange={handleFileChange}
+          aria-hidden="true"
         />
 
         <button
           className="tool-button"
           type="button"
           onClick={handleTemplate}
+          aria-label={`Download ${label} CSV template`}
         >
           <FileDown size={16} />
           <span>Template</span>

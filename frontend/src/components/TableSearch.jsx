@@ -9,6 +9,7 @@ const TableSearch = ({ value, onChange, placeholder = 'Search...' }) => (
       placeholder={placeholder}
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      aria-label={placeholder}
     />
   </div>
 );
