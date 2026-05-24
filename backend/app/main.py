@@ -8,8 +8,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.router import api_router
 from app.api.v1.admin import router as admin_router
 from app.config import settings
+from app.core.logging_config import setup_logging
+from app.middleware.ratelimit import RateLimitMiddleware
+from app.middleware.request_id import RequestIDMiddleware
 
 logger = logging.getLogger("ctem")
+
+setup_logging()
 
 
 @asynccontextmanager
@@ -21,6 +26,9 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     app = FastAPI(title="CTEM Leader Lab API", lifespan=lifespan)
+
+    app.add_middleware(RateLimitMiddleware, max_requests=200, window_seconds=60)
+    app.add_middleware(RequestIDMiddleware)
 
     app.add_middleware(
         CORSMiddleware,
