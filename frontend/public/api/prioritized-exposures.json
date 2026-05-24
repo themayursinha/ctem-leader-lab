@@ -61,7 +61,14 @@
     ],
     "validation_evidence": "External attack surface validation confirmed vulnerable version exposure without executing destructive payloads.",
     "owner": "Payments Engineering",
-    "sla": "7 days"
+    "sla": "7 days",
+    "source": "External attack surface validation",
+    "source_reference": "EASM-2026-119",
+    "first_seen": "2026-05-10",
+    "last_seen": "2026-05-22",
+    "validated_at": "2026-05-22",
+    "evidence_owner": "Application Security",
+    "evidence_expires_at": "2026-06-05"
   },
   {
     "exposure_id": "exp-ci-token",
@@ -125,7 +132,14 @@
     ],
     "validation_evidence": "Secret scanning reproduced the token pattern and confirmed active permissions in a sandboxed validation.",
     "owner": "Developer Experience",
-    "sla": "72 hours"
+    "sla": "72 hours",
+    "source": "Secret scanning",
+    "source_reference": "SCN-2026-0042",
+    "first_seen": "2026-04-28",
+    "last_seen": "2026-05-20",
+    "validated_at": "2026-05-21",
+    "evidence_owner": "Platform Security",
+    "evidence_expires_at": "2026-06-20"
   },
   {
     "exposure_id": "exp-okta-mfa",
@@ -189,7 +203,14 @@
     ],
     "validation_evidence": "Identity posture review found 18 privileged users outside the phishing-resistant MFA policy.",
     "owner": "Identity Engineering",
-    "sla": "14 days"
+    "sla": "14 days",
+    "source": "Identity posture review",
+    "source_reference": "IAM-2026-077",
+    "first_seen": "2026-04-15",
+    "last_seen": "2026-05-19",
+    "validated_at": "2026-05-19",
+    "evidence_owner": "Identity Engineering",
+    "evidence_expires_at": "2026-06-18"
   },
   {
     "exposure_id": "exp-cloud-sg",
@@ -253,7 +274,14 @@
     ],
     "validation_evidence": "Cloud graph analysis showed path reachability; packet-level validation is scheduled with platform approval.",
     "owner": "Cloud Platform",
-    "sla": "14 days"
+    "sla": "14 days",
+    "source": "Cloud graph analysis",
+    "source_reference": "CLOUD-2026-213",
+    "first_seen": "2026-05-02",
+    "last_seen": "2026-05-18",
+    "validated_at": "2026-05-18",
+    "evidence_owner": "Cloud Platform",
+    "evidence_expires_at": "2026-06-17"
   },
   {
     "exposure_id": "exp-marketing-hsts",
@@ -317,7 +345,14 @@
     ],
     "validation_evidence": "Header scan confirmed HSTS is absent from production responses.",
     "owner": "Digital Marketing",
-    "sla": "30 days"
+    "sla": "30 days",
+    "source": "Header scan",
+    "source_reference": "WEB-2026-036",
+    "first_seen": "2026-03-30",
+    "last_seen": "2026-05-12",
+    "validated_at": "2026-05-12",
+    "evidence_owner": "Web Operations",
+    "evidence_expires_at": "2026-08-10"
   },
   {
     "exposure_id": "exp-dev-wiki-cve",
@@ -381,6 +416,13 @@
     ],
     "validation_evidence": "Authenticated scanner confirmed version; network review shows no production reachability.",
     "owner": "Developer Experience",
-    "sla": "Standard maintenance"
+    "sla": "Standard maintenance",
+    "source": "Authenticated scanner",
+    "source_reference": "VM-2026-581",
+    "first_seen": "2026-04-04",
+    "last_seen": "2026-05-11",
+    "validated_at": "2026-05-11",
+    "evidence_owner": "Developer Experience",
+    "evidence_expires_at": "2026-07-10"
   }
 ]

@@ -2,11 +2,11 @@
 
 ## Supported Versions
 
-CTEM Leader Lab is currently pre-1.0. Security fixes are accepted for the latest release line.
+CTEM Leader Lab is currently pre-1.0. Security fixes are accepted for the latest documented release line.
 
 | Version | Supported |
 | --- | --- |
-| v0.1.x | Yes |
+| v0.4.x | Yes |
 
 ## Reporting a Vulnerability
 

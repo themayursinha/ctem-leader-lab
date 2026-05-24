@@ -56,6 +56,13 @@ class Exposure(BaseModel):
     evidence_confidence: EvidenceConfidence
     evidence: str
     suggested_action: str
+    source: Optional[str] = None
+    source_reference: Optional[str] = None
+    first_seen: Optional[str] = None
+    last_seen: Optional[str] = None
+    validated_at: Optional[str] = None
+    evidence_owner: Optional[str] = None
+    evidence_expires_at: Optional[str] = None
 
 
 class ScoreDriver(BaseModel):
@@ -81,6 +88,13 @@ class PrioritizedExposure(BaseModel):
     validation_evidence: str
     owner: str
     sla: str
+    source: Optional[str] = None
+    source_reference: Optional[str] = None
+    first_seen: Optional[str] = None
+    last_seen: Optional[str] = None
+    validated_at: Optional[str] = None
+    evidence_owner: Optional[str] = None
+    evidence_expires_at: Optional[str] = None
 
 
 class AttackPathStep(BaseModel):
@@ -146,3 +160,13 @@ class WorkshopArtifacts(BaseModel):
     validation_evidence_pack: list[str]
     raci: list[dict[str, str]]
     roadmap_30_60_90: list[dict[str, str]]
+
+
+class AuditEvent(BaseModel):
+    id: str
+    created_at: str
+    action: str
+    resource_type: str
+    resource_id: Optional[str] = None
+    summary: str
+    metadata: dict[str, Any]

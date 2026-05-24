@@ -145,6 +145,13 @@ def prioritized_exposures() -> list[PrioritizedExposure]:
                 validation_evidence=exposure.evidence,
                 owner=asset.owner,
                 sla=slas.get(exposure.id, "Not assigned"),
+                source=exposure.source,
+                source_reference=exposure.source_reference,
+                first_seen=exposure.first_seen,
+                last_seen=exposure.last_seen,
+                validated_at=exposure.validated_at,
+                evidence_owner=exposure.evidence_owner,
+                evidence_expires_at=exposure.evidence_expires_at,
             )
         )
 

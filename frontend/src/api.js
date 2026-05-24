@@ -1,6 +1,34 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 const isLiveMode = !!import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_LIVE === 'true';
 
+const ADMIN_TOKEN_KEY = 'ctem-admin-token';
+
+function getAdminToken() {
+  return sessionStorage.getItem(ADMIN_TOKEN_KEY) || '';
+}
+
+function setAdminToken(token) {
+  const clean = token.trim();
+  if (clean) {
+    sessionStorage.setItem(ADMIN_TOKEN_KEY, clean);
+  } else {
+    sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+  }
+}
+
+function adminHeaders() {
+  const token = getAdminToken();
+  return token ? { 'X-CTEM-Admin-Token': token } : {};
+}
+
+async function mutationError(response, label) {
+  const text = await response.text();
+  if (response.status === 401) {
+    throw new Error(`${label} failed: admin token is missing or invalid.`);
+  }
+  throw new Error(`${label} failed (${response.status}): ${text}`);
+}
+
 function apiUrl(path) {
   return API_BASE_URL ? `${API_BASE_URL}${path}` : path;
 }
@@ -56,11 +84,11 @@ async function postFile(path, file) {
   formData.append('file', file);
   const response = await fetch(apiUrl(path), {
     method: 'POST',
+    headers: adminHeaders(),
     body: formData,
   });
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Import failed (${response.status}): ${text}`);
+    await mutationError(response, 'Import');
   }
   return response.json();
 }
@@ -77,6 +105,8 @@ export const api = {
   getWorkshopArtifacts: () => getJson('/api/workshop-artifacts'),
 
   isLiveMode: () => isLiveMode,
+  getAdminToken,
+  setAdminToken,
 
   async exportAssetsCsv() {
     const blob = await getBlob('/api/assets/export');
@@ -108,10 +138,10 @@ export const api = {
   async resetData() {
     const response = await fetch(apiUrl('/api/reset?X-Confirm-Reset=true'), {
       method: 'POST',
+      headers: adminHeaders(),
     });
     if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Reset failed (${response.status}): ${text}`);
+      await mutationError(response, 'Reset');
     }
     return response.json();
   },
@@ -119,10 +149,10 @@ export const api = {
   async saveSession(name) {
     const response = await fetch(apiUrl(`/api/sessions?name=${encodeURIComponent(name)}`), {
       method: 'POST',
+      headers: adminHeaders(),
     });
     if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Save session failed (${response.status}): ${text}`);
+      await mutationError(response, 'Save session');
     }
     return response.json();
   },
@@ -135,13 +165,21 @@ export const api = {
     return response.json();
   },
 
+  async listAuditEvents(limit = 100) {
+    const response = await fetch(apiUrl(`/api/audit-events?limit=${limit}`));
+    if (!response.ok) {
+      throw new Error(`List audit events failed: ${response.status}`);
+    }
+    return response.json();
+  },
+
   async loadSession(sessionId) {
     const response = await fetch(apiUrl(`/api/sessions/${sessionId}/load`), {
       method: 'POST',
+      headers: adminHeaders(),
     });
     if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Load session failed (${response.status}): ${text}`);
+      await mutationError(response, 'Load session');
     }
     return response.json();
   },
@@ -149,10 +187,10 @@ export const api = {
   async deleteSession(sessionId) {
     const response = await fetch(apiUrl(`/api/sessions/${sessionId}`), {
       method: 'DELETE',
+      headers: adminHeaders(),
     });
     if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Delete session failed (${response.status}): ${text}`);
+      await mutationError(response, 'Delete session');
     }
     return response.json();
   },

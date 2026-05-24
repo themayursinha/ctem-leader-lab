@@ -2,7 +2,7 @@
 
 All notable changes to CTEM Leader Lab are documented here.
 
-## v0.4.0 — Production Readiness
+## v0.4.0 — Workshop Readiness
 
 ### CSV Import/Export (v0.2.0)
 - Added 7 new backend endpoints for CSV import/export of assets, exposures, and remediation actions.

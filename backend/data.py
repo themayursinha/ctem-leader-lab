@@ -205,6 +205,13 @@ EXPOSURES = [
         remediation_effort="Low",
         evidence_confidence="High",
         evidence="Secret scanning reproduced the token pattern and confirmed active permissions in a sandboxed validation.",
+        source="Secret scanning",
+        source_reference="SCN-2026-0042",
+        first_seen="2026-04-28",
+        last_seen="2026-05-20",
+        validated_at="2026-05-21",
+        evidence_owner="Platform Security",
+        evidence_expires_at="2026-06-20",
         suggested_action="Revoke token, rotate downstream credentials, constrain runner permissions, and add deploy-token policy guardrails.",
     ),
     Exposure(
@@ -224,6 +231,13 @@ EXPOSURES = [
         remediation_effort="Medium",
         evidence_confidence="High",
         evidence="External attack surface validation confirmed vulnerable version exposure without executing destructive payloads.",
+        source="External attack surface validation",
+        source_reference="EASM-2026-119",
+        first_seen="2026-05-10",
+        last_seen="2026-05-22",
+        validated_at="2026-05-22",
+        evidence_owner="Application Security",
+        evidence_expires_at="2026-06-05",
         suggested_action="Apply emergency patch or virtual patch, validate WAF coverage, and retest externally.",
     ),
     Exposure(
@@ -243,6 +257,13 @@ EXPOSURES = [
         remediation_effort="Medium",
         evidence_confidence="High",
         evidence="Identity posture review found 18 privileged users outside the phishing-resistant MFA policy.",
+        source="Identity posture review",
+        source_reference="IAM-2026-077",
+        first_seen="2026-04-15",
+        last_seen="2026-05-19",
+        validated_at="2026-05-19",
+        evidence_owner="Identity Engineering",
+        evidence_expires_at="2026-06-18",
         suggested_action="Move privileged group to phishing-resistant MFA, require device posture, and retest access policy.",
     ),
     Exposure(
@@ -262,6 +283,13 @@ EXPOSURES = [
         remediation_effort="Medium",
         evidence_confidence="Medium",
         evidence="Cloud graph analysis showed path reachability; packet-level validation is scheduled with platform approval.",
+        source="Cloud graph analysis",
+        source_reference="CLOUD-2026-213",
+        first_seen="2026-05-02",
+        last_seen="2026-05-18",
+        validated_at="2026-05-18",
+        evidence_owner="Cloud Platform",
+        evidence_expires_at="2026-06-17",
         suggested_action="Restrict CI runner egress, segment production data subnet, and add cloud policy-as-code checks.",
     ),
     Exposure(
@@ -281,6 +309,13 @@ EXPOSURES = [
         remediation_effort="Low",
         evidence_confidence="High",
         evidence="Header scan confirmed HSTS is absent from production responses.",
+        source="Header scan",
+        source_reference="WEB-2026-036",
+        first_seen="2026-03-30",
+        last_seen="2026-05-12",
+        validated_at="2026-05-12",
+        evidence_owner="Web Operations",
+        evidence_expires_at="2026-08-10",
         suggested_action="Add HSTS with preload-ready configuration through the CDN change workflow.",
     ),
     Exposure(
@@ -300,6 +335,13 @@ EXPOSURES = [
         remediation_effort="High",
         evidence_confidence="Medium",
         evidence="Authenticated scanner confirmed version; network review shows no production reachability.",
+        source="Authenticated scanner",
+        source_reference="VM-2026-581",
+        first_seen="2026-04-04",
+        last_seen="2026-05-11",
+        validated_at="2026-05-11",
+        evidence_owner="Developer Experience",
+        evidence_expires_at="2026-07-10",
         suggested_action="Patch in normal maintenance window and continue monitoring exploit intelligence.",
     ),
 ]
@@ -677,6 +719,12 @@ class DataStore:
 
     def get_session_info(self, session_id: str):
         return DB.get_session(session_id)
+
+    def record_audit_event(self, action: str, resource_type: str, resource_id: str | None, summary: str, metadata: dict | None = None) -> str:
+        return DB.record_audit_event(action, resource_type, resource_id, summary, metadata)
+
+    def list_audit_events(self, limit: int = 100) -> list[dict]:
+        return DB.list_audit_events(limit=limit)
 
 
 DATA = DataStore()

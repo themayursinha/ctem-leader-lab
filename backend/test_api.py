@@ -64,6 +64,7 @@ def _make_csv(rows: list[dict]) -> bytes:
 
 
 def test_core_api_responses_are_json_serializable():
+    DATA.reset()
     for path in [
         "/api/program-summary",
         "/api/maturity",
@@ -81,6 +82,7 @@ def test_core_api_responses_are_json_serializable():
 
 
 def test_seeded_relationships_are_linked():
+    DATA.reset()
     assets = {asset["id"] for asset in client.get("/api/assets").json()}
     services = {service["id"] for service in client.get("/api/business-services").json()}
     exposures = client.get("/api/exposures").json()
@@ -326,3 +328,84 @@ def test_executive_summary_defaults_to_markdown():
     resp = client.get("/api/executive-summary")
     assert resp.status_code == 200
     assert resp.headers["content-type"].startswith("text/markdown")
+
+
+# ---------- Health, provenance, admin token, and audit tests ----------
+
+
+def test_health_endpoint():
+    resp = client.get("/healthz")
+    assert resp.status_code == 200
+    assert resp.json() == {"status": "ok"}
+
+
+def test_seeded_exposures_include_provenance():
+    DATA.reset()
+    exposure = client.get("/api/exposures").json()[0]
+    assert exposure["source"]
+    assert exposure["source_reference"]
+    assert exposure["last_seen"]
+    assert exposure["validated_at"]
+
+
+def test_exposure_csv_export_includes_provenance_fields():
+    DATA.reset()
+    resp = client.get("/api/exposures/export")
+    reader = csv.DictReader(io.StringIO(resp.text))
+    assert "source" in reader.fieldnames
+    assert "validated_at" in reader.fieldnames
+
+
+def test_optional_provenance_fields_do_not_break_legacy_import():
+    DATA.reset()
+    row = _exposure_csv_row()
+    for key in ["source", "source_reference", "first_seen", "last_seen", "validated_at", "evidence_owner", "evidence_expires_at"]:
+        row.pop(key, None)
+    csv_bytes = _make_csv([row])
+    resp = client.post("/api/exposures/import", files={"file": ("legacy.csv", csv_bytes, "text/csv")})
+    assert resp.status_code == 200
+    assert resp.json()["imported"] == 1
+
+
+def test_admin_token_blocks_mutation_when_configured(monkeypatch):
+    DATA.reset()
+    monkeypatch.setenv("CTEM_ADMIN_TOKEN", "test-token")
+    csv_bytes = _make_csv([_asset_csv_row(id="blocked-asset")])
+
+    missing = client.post("/api/assets/import", files={"file": ("test.csv", csv_bytes, "text/csv")})
+    assert missing.status_code == 401
+
+    wrong = client.post(
+        "/api/assets/import",
+        files={"file": ("test.csv", csv_bytes, "text/csv")},
+        headers={"X-CTEM-Admin-Token": "wrong"},
+    )
+    assert wrong.status_code == 401
+
+    ok = client.post(
+        "/api/assets/import",
+        files={"file": ("test.csv", csv_bytes, "text/csv")},
+        headers={"X-CTEM-Admin-Token": "test-token"},
+    )
+    assert ok.status_code == 200
+    assert ok.json()["imported"] == 1
+
+
+def test_audit_events_are_recorded_for_mutations():
+    DATA.reset()
+    csv_bytes = _make_csv([_asset_csv_row(id="audit-asset")])
+    resp = client.post("/api/assets/import", files={"file": ("test.csv", csv_bytes, "text/csv")})
+    assert resp.status_code == 200
+
+    events = client.get("/api/audit-events?limit=10").json()
+    assert events[0]["action"] == "import_assets"
+    assert events[0]["resource_type"] == "assets"
+    assert events[0]["metadata"]["row_count"] == 1
+
+
+def test_audit_events_limit_is_respected():
+    DATA.record_audit_event("test_event_one", "test", None, "one", {})
+    DATA.record_audit_event("test_event_two", "test", None, "two", {})
+    resp = client.get("/api/audit-events?limit=1")
+    assert resp.status_code == 200
+    assert len(resp.json()) == 1

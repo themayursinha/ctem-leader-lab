@@ -5,7 +5,7 @@
 <h1 align="center">CTEM Leader Lab</h1>
 
 <p align="center">
-  An interactive implementation workbench for security leaders moving from vulnerability management to Continuous Threat Exposure Management.
+  An interactive local workshop workbench for security leaders moving from vulnerability management to Continuous Threat Exposure Management.
 </p>
 
 <p align="center">
@@ -42,9 +42,15 @@ Traditional vulnerability management often asks: **Which CVEs are severe enough 
 
 Continuous Threat Exposure Management asks: **Which validated exposure paths create the most credible business risk, and who will reduce them?**
 
-CTEM Leader Lab is a fictional, scenario-driven product for CISOs, security directors, and security program owners. It teaches how to scope crown-jewel services, discover exposures across domains, prioritize by business and threat context, validate attack paths safely, and mobilize remediation with accountable owners.
+CTEM Leader Lab is a fictional, scenario-driven local workbench for CISOs, security directors, and security program owners. It teaches how to scope crown-jewel services, discover exposures across domains, prioritize by business and threat context, validate attack paths safely, and mobilize remediation with accountable owners.
 
-This is not a scanner. It is a leadership workbench for learning the CTEM operating model.
+This is not a scanner and not an operational CTEM system of record. It is a leadership workbench for learning the CTEM operating model.
+
+## Not Production Ready
+
+CTEM Leader Lab is workshop-ready, not production CTEM software. The seed data is fictional, and the local backend is intentionally lightweight. Do not ingest real sensitive exposure data unless you have added your own authentication, authorization, audit retention, backup, encryption, and operational controls.
+
+The live backend supports an optional `CTEM_ADMIN_TOKEN` local safety gate for mutating APIs, but this is not enterprise auth, RBAC, or a substitute for a proper identity boundary.
 
 ## Quick Start
 
@@ -62,7 +68,7 @@ Or without `make`:
 docker compose up --build -d
 ```
 
-Open **http://localhost:8080**. The app loads with realistic demo data, and all features (CSV import/export, sessions, executive summary) work immediately.
+Open **http://localhost:8080**. The app loads with realistic fictional demo data. CSV import/export, sessions, reset, and executive summary work in live mode; set `CTEM_ADMIN_TOKEN` first if you want local mutation protection.
 
 To stop:
 
@@ -80,8 +86,12 @@ cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+# Optional: require X-CTEM-Admin-Token for mutating APIs
+export CTEM_ADMIN_TOKEN=change-me-for-local-live-mode
 uvicorn main:app --reload
 ```
+
+If an old local `backend/.venv` or `backend/venv` behaves strangely, delete and recreate it. Virtual environments are local artifacts and should not be committed.
 
 Frontend (separate terminal):
 
@@ -196,7 +206,7 @@ npm run build
 - ~~`v0.1.0`: Scenario-driven CTEM Leader Lab MVP.~~
 - ~~`v0.2.0`: CSV import/export for assets, exposures, and remediation actions.~~
 - ~~`v0.3.0`: Saved workshop sessions and exportable executive summary.~~
-- ~~`v0.4.0`: Docker, onboarding, UX polish, error handling, accessibility.~~
+- ~~`v0.4.0`: Docker, onboarding, UX polish, error handling, accessibility, workshop readiness.~~
 - `v0.5.0`: Optional integrations for scanner, cloud, identity, and ticketing data.
 
 ## Contributing

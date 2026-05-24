@@ -79,7 +79,8 @@ const Discovery = () => {
       exposure.title.toLowerCase().includes(q) ||
       exposure.description.toLowerCase().includes(q) ||
       exposure.exposure_type.toLowerCase().includes(q) ||
-      exposure.severity.toLowerCase().includes(q)
+      exposure.severity.toLowerCase().includes(q) ||
+      String(exposure.source || '').toLowerCase().includes(q)
     );
   }, [sorted, search]);
 
@@ -143,6 +144,7 @@ const Discovery = () => {
                 <th>Service</th>
                 <th className="sortable" onClick={() => handleSort('severity')} aria-sort={sortKey === 'severity' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>Severity {sortIcon('severity')}</th>
                 <th>Threat signal</th>
+                <th>Source</th>
                 <th>Evidence</th>
               </tr>
             </thead>
@@ -169,7 +171,8 @@ const Discovery = () => {
                         </Tooltip>
                       </span>
                     </td>
-                    <td>{exposure.evidence_confidence}</td>
+                    <td><strong>{exposure.source || 'Seed data'}</strong><span>{exposure.source_reference}</span></td>
+                    <td><strong>{exposure.evidence_confidence}</strong><span>Validated {exposure.validated_at || 'not recorded'}</span></td>
                   </tr>
                 );
               })}

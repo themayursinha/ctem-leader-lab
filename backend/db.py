@@ -11,7 +11,7 @@ DB_PATH = os.environ.get("CTEM_DB_PATH", os.path.join(os.path.dirname(__file__),
 
 
 def _iso_now() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+    return datetime.now(timezone.utc).isoformat(timespec="microseconds")
 
 
 class Database:
@@ -44,6 +44,16 @@ class Database:
                         assets TEXT NOT NULL,
                         exposures TEXT NOT NULL,
                         remediation_actions TEXT NOT NULL
+                    );
+
+                    CREATE TABLE IF NOT EXISTS audit_events (
+                        id TEXT PRIMARY KEY NOT NULL,
+                        created_at TEXT NOT NULL,
+                        action TEXT NOT NULL,
+                        resource_type TEXT NOT NULL,
+                        resource_id TEXT,
+                        summary TEXT NOT NULL,
+                        metadata TEXT NOT NULL
                     );
                 """)
                 conn.commit()
@@ -125,6 +135,51 @@ class Database:
                 cursor = conn.execute("DELETE FROM sessions WHERE id = ?", (session_id,))
                 conn.commit()
                 return cursor.rowcount > 0
+            finally:
+                conn.close()
+
+    def record_audit_event(
+        self,
+        action: str,
+        resource_type: str,
+        resource_id: Optional[str],
+        summary: str,
+        metadata: Optional[dict[str, Any]] = None,
+    ) -> str:
+        event_id = str(uuid.uuid4())
+        now = _iso_now()
+        payload = json.dumps(metadata or {}, sort_keys=True)
+        with self._lock:
+            conn = self._connect()
+            try:
+                conn.execute(
+                    """INSERT INTO audit_events (id, created_at, action, resource_type, resource_id, summary, metadata)
+                       VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                    (event_id, now, action, resource_type, resource_id, summary, payload),
+                )
+                conn.commit()
+            finally:
+                conn.close()
+        return event_id
+
+    def list_audit_events(self, limit: int = 100) -> list[dict[str, Any]]:
+        with self._lock:
+            conn = self._connect()
+            try:
+                rows = conn.execute(
+                    """SELECT id, created_at, action, resource_type, resource_id, summary, metadata
+                       FROM audit_events ORDER BY created_at DESC, rowid DESC LIMIT ?""",
+                    (limit,),
+                ).fetchall()
+                events = []
+                for row in rows:
+                    event = dict(row)
+                    try:
+                        event["metadata"] = json.loads(event["metadata"])
+                    except json.JSONDecodeError:
+                        event["metadata"] = {}
+                    events.append(event)
+                return events
             finally:
                 conn.close()
 

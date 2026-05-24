@@ -1,9 +1,12 @@
 import csv
+import hmac
 import io
+import logging
 import os
+from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import FastAPI, File, HTTPException, Query, UploadFile, status
+from fastapi import Depends, FastAPI, File, Header, HTTPException, Query, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, StreamingResponse
 
@@ -19,6 +22,7 @@ from data import (
 )
 from models import (
     Asset,
+    AuditEvent,
     AttackPath,
     BusinessService,
     Exposure,
@@ -33,9 +37,27 @@ from scoring import prioritized_exposures
 
 MAX_FILE_SIZE = 10 * 1024 * 1024
 MAX_ROWS = 10_000
+OPTIONAL_CSV_FIELDS = {"cvss", "source", "source_reference", "first_seen", "last_seen", "validated_at", "evidence_owner", "evidence_expires_at"}
+
+logger = logging.getLogger("ctem")
 
 
-app = FastAPI(title="CTEM Leader Lab API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if not os.environ.get("CTEM_ADMIN_TOKEN"):
+        logger.warning("CTEM_ADMIN_TOKEN is unset; mutating APIs are running in unsafe local demo mode.")
+    yield
+
+
+app = FastAPI(title="CTEM Leader Lab API", lifespan=lifespan)
+
+
+def require_admin_token(x_ctem_admin_token: str | None = Header(default=None)):
+    expected = os.environ.get("CTEM_ADMIN_TOKEN")
+    if not expected:
+        return
+    if not x_ctem_admin_token or not hmac.compare_digest(x_ctem_admin_token, expected):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing or invalid admin token.")
 
 _default_origins = "http://localhost:5173,http://localhost:5174,http://localhost:5175,http://127.0.0.1:5173,http://127.0.0.1:5174,http://127.0.0.1:5175"
 _cors_origins = os.environ.get("CORS_ORIGINS", _default_origins).split(",")
@@ -80,6 +102,8 @@ EXPOSURE_FIELDS = [
     "cvss", "epss_probability", "kev_signal", "ransomware_observed",
     "identity_risk", "control_gap", "attack_path_proximity",
     "remediation_effort", "evidence_confidence", "evidence", "suggested_action",
+    "source", "source_reference", "first_seen", "last_seen", "validated_at",
+    "evidence_owner", "evidence_expires_at",
 ]
 
 REMEDIATION_FIELDS = [
@@ -166,7 +190,7 @@ def _validate_rows(
         coerced = {}
         for field in fields:
             raw = row.get(field, "").strip()
-            if raw == "" and field in ("cvss", "epss_probability"):
+            if raw == "" and field in OPTIONAL_CSV_FIELDS:
                 coerced[field] = None
                 continue
             if raw == "":
@@ -192,6 +216,11 @@ def _validate_rows(
 
 
 # ---------- Existing read-only endpoints ----------
+
+
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
 
 
 @app.get("/api/program-summary", response_model=ProgramSummary)
@@ -302,40 +331,49 @@ def export_remediation_csv():
 # ---------- CSV import endpoints ----------
 
 
-@app.post("/api/assets/import")
+@app.post("/api/assets/import", dependencies=[Depends(require_admin_token)])
 async def import_assets_csv(file: UploadFile = File(...)):
     rows = _parse_upload(file)
     valid, errors = _validate_rows(rows, Asset, ASSET_FIELDS)
     if errors:
         return {"imported": 0, "errors": errors}
     DATA.replace_assets(valid)
+    DATA.record_audit_event(
+        "import_assets", "assets", None, f"Imported {len(valid)} asset rows.", {"row_count": len(valid)}
+    )
     return {"imported": len(valid), "errors": []}
 
 
-@app.post("/api/exposures/import")
+@app.post("/api/exposures/import", dependencies=[Depends(require_admin_token)])
 async def import_exposures_csv(file: UploadFile = File(...)):
     rows = _parse_upload(file)
     valid, errors = _validate_rows(rows, Exposure, EXPOSURE_FIELDS)
     if errors:
         return {"imported": 0, "errors": errors}
     DATA.replace_exposures(valid)
+    DATA.record_audit_event(
+        "import_exposures", "exposures", None, f"Imported {len(valid)} exposure rows.", {"row_count": len(valid)}
+    )
     return {"imported": len(valid), "errors": []}
 
 
-@app.post("/api/remediation-actions/import")
+@app.post("/api/remediation-actions/import", dependencies=[Depends(require_admin_token)])
 async def import_remediation_csv(file: UploadFile = File(...)):
     rows = _parse_upload(file)
     valid, errors = _validate_rows(rows, RemediationAction, REMEDIATION_FIELDS)
     if errors:
         return {"imported": 0, "errors": errors}
     DATA.replace_remediation_actions(valid)
+    DATA.record_audit_event(
+        "import_remediation_actions", "remediation_actions", None, f"Imported {len(valid)} remediation action rows.", {"row_count": len(valid)}
+    )
     return {"imported": len(valid), "errors": []}
 
 
 # ---------- Reset endpoint ----------
 
 
-@app.post("/api/reset")
+@app.post("/api/reset", dependencies=[Depends(require_admin_token)])
 def reset_data(confirm: bool = Query(False, alias="X-Confirm-Reset")):
     if not confirm:
         raise HTTPException(
@@ -343,16 +381,21 @@ def reset_data(confirm: bool = Query(False, alias="X-Confirm-Reset")):
             detail="Reset requires X-Confirm-Reset=true query parameter.",
         )
     DATA.reset()
+    DATA.record_audit_event("reset_data", "workspace", None, "Reset workspace to seed data.", {})
     return {"status": "reset to seed data"}
 
 
 # ---------- Session endpoints ----------
 
 
-@app.post("/api/sessions")
+@app.post("/api/sessions", dependencies=[Depends(require_admin_token)])
 def create_session(name: str = Query(..., min_length=1, max_length=200)):
-    session_id = DATA.save_session(name=name.strip())
-    return {"id": session_id, "name": name.strip()}
+    clean_name = name.strip()
+    session_id = DATA.save_session(name=clean_name)
+    DATA.record_audit_event(
+        "save_session", "session", session_id, f'Saved session "{clean_name}".', {"name": clean_name}
+    )
+    return {"id": session_id, "name": clean_name}
 
 
 @app.get("/api/sessions")
@@ -373,20 +416,30 @@ def get_session(session_id: str):
     }
 
 
-@app.post("/api/sessions/{session_id}/load")
+@app.post("/api/sessions/{session_id}/load", dependencies=[Depends(require_admin_token)])
 def load_session(session_id: str):
     ok = DATA.load_session(session_id)
     if not ok:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+    DATA.record_audit_event("load_session", "session", session_id, f"Loaded session {session_id}.", {})
     return {"status": f"Session {session_id} loaded"}
 
 
-@app.delete("/api/sessions/{session_id}")
+@app.delete("/api/sessions/{session_id}", dependencies=[Depends(require_admin_token)])
 def delete_session(session_id: str):
     ok = DATA.delete_session(session_id)
     if not ok:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+    DATA.record_audit_event("delete_session", "session", session_id, f"Deleted session {session_id}.", {})
     return {"status": f"Session {session_id} deleted"}
+
+
+# ---------- Audit endpoint ----------
+
+
+@app.get("/api/audit-events", response_model=list[AuditEvent])
+def list_audit_events(limit: int = Query(100, ge=1, le=500)):
+    return DATA.list_audit_events(limit=limit)
 
 
 # ---------- Executive summary endpoint ----------

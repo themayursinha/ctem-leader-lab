@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Loader, Save, Trash2, Upload, FileText } from 'lucide-react';
+import { History, KeyRound, Loader, Save, Trash2, Upload, FileText } from 'lucide-react';
 
 import { api } from '../api';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -8,6 +8,8 @@ import { useToast } from '../components/Toast';
 
 const Sessions = () => {
   const [sessions, setSessions] = useState([]);
+  const [auditEvents, setAuditEvents] = useState([]);
+  const [adminToken, setAdminToken] = useState(api.getAdminToken());
   const [sessionName, setSessionName] = useState('');
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(null);
@@ -15,8 +17,24 @@ const Sessions = () => {
   const [message, setMessage] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [fetching, setFetching] = useState(true);
+  const [auditError, setAuditError] = useState(null);
   const [error, setError] = useState(null);
   const addToast = useToast();
+
+  const refreshSessions = () => {
+    setFetching(true);
+    api.listSessions().then((data) => {
+      setSessions(data);
+      setFetching(false);
+    }).catch((err) => {
+      setError(err);
+      setFetching(false);
+    });
+  };
+
+  const refreshAuditEvents = () => {
+    api.listAuditEvents(50).then(setAuditEvents).catch(setAuditError);
+  };
 
   useEffect(() => {
     api.listSessions().then((data) => {
@@ -26,7 +44,13 @@ const Sessions = () => {
       setError(err);
       setFetching(false);
     });
+    api.listAuditEvents(50).then(setAuditEvents).catch(setAuditError);
   }, []);
+
+  const handleAdminTokenChange = (value) => {
+    setAdminToken(value);
+    api.setAdminToken(value);
+  };
 
   const handleSave = async () => {
     const name = sessionName.trim();
@@ -37,14 +61,8 @@ const Sessions = () => {
       await api.saveSession(name);
       setSessionName('');
       addToast(`Session "${name}" saved.`, 'success');
-      setFetching(true);
-      api.listSessions().then((data) => {
-        setSessions(data);
-        setFetching(false);
-      }).catch((err) => {
-        setError(err);
-        setFetching(false);
-      });
+      refreshSessions();
+      refreshAuditEvents();
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
       addToast(err.message, 'error');
@@ -76,14 +94,8 @@ const Sessions = () => {
     try {
       await api.deleteSession(id);
       addToast(`Session "${name}" deleted.`, 'success');
-      setFetching(true);
-      api.listSessions().then((data) => {
-        setSessions(data);
-        setFetching(false);
-      }).catch((err) => {
-        setError(err);
-        setFetching(false);
-      });
+      refreshSessions();
+      refreshAuditEvents();
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
       addToast(err.message, 'error');
@@ -128,6 +140,27 @@ const Sessions = () => {
           <p className="page-intro">
             Save, load, and manage CTEM workshop snapshots. Each session captures the current state of assets, exposures, and remediation actions.
           </p>
+        </div>
+      </section>
+
+      <section className="content-section">
+        <div className="section-heading">
+          <h2>Admin Token</h2>
+          <p>Required only when the backend is started with <code>CTEM_ADMIN_TOKEN</code>. Stored for this browser tab only.</p>
+        </div>
+        <div className="session-save-row">
+          <input
+            className="session-input"
+            type="password"
+            placeholder="Enter local admin token"
+            value={adminToken}
+            onChange={(e) => handleAdminTokenChange(e.target.value)}
+            aria-label="Local admin token"
+          />
+          <button className="tool-button" type="button" onClick={() => handleAdminTokenChange('')} disabled={!adminToken}>
+            <KeyRound size={16} />
+            <span>Clear Token</span>
+          </button>
         </div>
       </section>
 
@@ -211,6 +244,42 @@ const Sessions = () => {
                         </button>
                       </div>
                     </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+
+      <section className="content-section">
+        <div className="section-heading">
+          <h2><History size={18} aria-hidden="true" /> Audit Events</h2>
+          <p>Recent state-changing actions recorded by the live backend.</p>
+        </div>
+        {auditError ? (
+          <div className="notice-panel error">Unable to load audit events. {auditError.message}</div>
+        ) : auditEvents.length === 0 ? (
+          <div className="notice-panel">No audit events recorded yet.</div>
+        ) : (
+          <div className="table-wrap">
+            <table className="data-table" aria-label="Audit events">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Action</th>
+                  <th>Resource</th>
+                  <th>Summary</th>
+                </tr>
+              </thead>
+              <tbody>
+                {auditEvents.map((event) => (
+                  <tr key={event.id}>
+                    <td>{new Date(event.created_at).toLocaleString()}</td>
+                    <td><strong>{event.action}</strong></td>
+                    <td>{event.resource_type}{event.resource_id ? ` / ${event.resource_id}` : ''}</td>
+                    <td>{event.summary}</td>
                   </tr>
                 ))}
               </tbody>

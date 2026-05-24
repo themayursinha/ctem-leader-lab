@@ -1,7 +1,9 @@
+from data import DATA
 from scoring import decision_for_score, prioritized_exposures
 
 
 def test_medium_identity_secret_outranks_isolated_high_cve():
+    DATA.reset()
     prioritized = prioritized_exposures()
     by_id = {item.exposure_id: item for item in prioritized}
 
@@ -11,6 +13,7 @@ def test_medium_identity_secret_outranks_isolated_high_cve():
 
 
 def test_prioritized_exposure_contains_leader_rationale_and_owner():
+    DATA.reset()
     top = prioritized_exposures()[0]
 
     assert top.rationale

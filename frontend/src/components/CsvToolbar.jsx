@@ -6,7 +6,7 @@ import { useToast } from './Toast';
 
 const TEMPLATES = {
   Assets: ['name', 'type', 'service_id', 'owner', 'crown_jewel', 'reachable_from_internet'],
-  Exposures: ['title', 'description', 'exposure_type', 'asset_id', 'severity', 'epss_probability', 'kev_signal', 'evidence_confidence'],
+  Exposures: ['title', 'description', 'exposure_type', 'asset_id', 'severity', 'epss_probability', 'kev_signal', 'evidence_confidence', 'source', 'source_reference', 'last_seen', 'validated_at'],
   Remediation: ['title', 'playbook', 'owner', 'sla', 'status', 'priority', 'risk_acceptance_required'],
 };
 

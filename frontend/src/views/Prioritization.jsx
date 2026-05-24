@@ -106,6 +106,8 @@ const Prioritization = ({ DecisionBadge }) => {
                 </Tooltip>
                 <span>{risk.owner}</span>
                 <span>{risk.sla}</span>
+                <span>{risk.source || 'Seed data'}</span>
+                <span>Validated {risk.validated_at || 'not recorded'}</span>
               </div>
               <p className="rationale">{risk.rationale}</p>
               <p className="why">{risk.why_it_matters}</p>

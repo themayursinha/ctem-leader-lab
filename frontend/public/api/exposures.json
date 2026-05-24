@@ -16,7 +16,14 @@
     "remediation_effort": "Low",
     "evidence_confidence": "High",
     "evidence": "Secret scanning reproduced the token pattern and confirmed active permissions in a sandboxed validation.",
-    "suggested_action": "Revoke token, rotate downstream credentials, constrain runner permissions, and add deploy-token policy guardrails."
+    "suggested_action": "Revoke token, rotate downstream credentials, constrain runner permissions, and add deploy-token policy guardrails.",
+    "source": "Secret scanning",
+    "source_reference": "SCN-2026-0042",
+    "first_seen": "2026-04-28",
+    "last_seen": "2026-05-20",
+    "validated_at": "2026-05-21",
+    "evidence_owner": "Platform Security",
+    "evidence_expires_at": "2026-06-20"
   },
   {
     "id": "exp-payment-edge",
@@ -35,7 +42,14 @@
     "remediation_effort": "Medium",
     "evidence_confidence": "High",
     "evidence": "External attack surface validation confirmed vulnerable version exposure without executing destructive payloads.",
-    "suggested_action": "Apply emergency patch or virtual patch, validate WAF coverage, and retest externally."
+    "suggested_action": "Apply emergency patch or virtual patch, validate WAF coverage, and retest externally.",
+    "source": "External attack surface validation",
+    "source_reference": "EASM-2026-119",
+    "first_seen": "2026-05-10",
+    "last_seen": "2026-05-22",
+    "validated_at": "2026-05-22",
+    "evidence_owner": "Application Security",
+    "evidence_expires_at": "2026-06-05"
   },
   {
     "id": "exp-okta-mfa",
@@ -54,7 +68,14 @@
     "remediation_effort": "Medium",
     "evidence_confidence": "High",
     "evidence": "Identity posture review found 18 privileged users outside the phishing-resistant MFA policy.",
-    "suggested_action": "Move privileged group to phishing-resistant MFA, require device posture, and retest access policy."
+    "suggested_action": "Move privileged group to phishing-resistant MFA, require device posture, and retest access policy.",
+    "source": "Identity posture review",
+    "source_reference": "IAM-2026-077",
+    "first_seen": "2026-04-15",
+    "last_seen": "2026-05-19",
+    "validated_at": "2026-05-19",
+    "evidence_owner": "Identity Engineering",
+    "evidence_expires_at": "2026-06-18"
   },
   {
     "id": "exp-cloud-sg",
@@ -73,7 +94,14 @@
     "remediation_effort": "Medium",
     "evidence_confidence": "Medium",
     "evidence": "Cloud graph analysis showed path reachability; packet-level validation is scheduled with platform approval.",
-    "suggested_action": "Restrict CI runner egress, segment production data subnet, and add cloud policy-as-code checks."
+    "suggested_action": "Restrict CI runner egress, segment production data subnet, and add cloud policy-as-code checks.",
+    "source": "Cloud graph analysis",
+    "source_reference": "CLOUD-2026-213",
+    "first_seen": "2026-05-02",
+    "last_seen": "2026-05-18",
+    "validated_at": "2026-05-18",
+    "evidence_owner": "Cloud Platform",
+    "evidence_expires_at": "2026-06-17"
   },
   {
     "id": "exp-marketing-hsts",
@@ -92,7 +120,14 @@
     "remediation_effort": "Low",
     "evidence_confidence": "High",
     "evidence": "Header scan confirmed HSTS is absent from production responses.",
-    "suggested_action": "Add HSTS with preload-ready configuration through the CDN change workflow."
+    "suggested_action": "Add HSTS with preload-ready configuration through the CDN change workflow.",
+    "source": "Header scan",
+    "source_reference": "WEB-2026-036",
+    "first_seen": "2026-03-30",
+    "last_seen": "2026-05-12",
+    "validated_at": "2026-05-12",
+    "evidence_owner": "Web Operations",
+    "evidence_expires_at": "2026-08-10"
   },
   {
     "id": "exp-dev-wiki-cve",
@@ -111,6 +146,13 @@
     "remediation_effort": "High",
     "evidence_confidence": "Medium",
     "evidence": "Authenticated scanner confirmed version; network review shows no production reachability.",
-    "suggested_action": "Patch in normal maintenance window and continue monitoring exploit intelligence."
+    "suggested_action": "Patch in normal maintenance window and continue monitoring exploit intelligence.",
+    "source": "Authenticated scanner",
+    "source_reference": "VM-2026-581",
+    "first_seen": "2026-04-04",
+    "last_seen": "2026-05-11",
+    "validated_at": "2026-05-11",
+    "evidence_owner": "Developer Experience",
+    "evidence_expires_at": "2026-07-10"
   }
 ]

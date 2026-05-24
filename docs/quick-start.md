@@ -2,7 +2,7 @@
 
 ## Using Docker (recommended)
 
-See the [main README](../README.md#using-docker-recommended) for one-command setup with Docker Compose.
+See the [main README](../README.md#using-docker-recommended) for one-command setup with Docker Compose. The default Compose setup exposes only the frontend on `http://localhost:8080`; the backend stays on the internal Docker network.
 
 ## Manual Development Setup
 
@@ -22,7 +22,14 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-The API runs at `http://localhost:8000`.
+The API runs at `http://localhost:8000`. To require a local token for CSV imports, reset, and session mutations, start it with:
+
+```bash
+export CTEM_ADMIN_TOKEN=change-me-for-local-live-mode
+uvicorn main:app --reload
+```
+
+The token is a local safety gate, not enterprise authentication.
 
 Useful endpoints:
 
