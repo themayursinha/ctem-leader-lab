@@ -43,27 +43,37 @@ def _iso_now() -> str:
 
 
 class DataService:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, org_id: str | None = None):
         self._db = db
+        self._org_id = org_id
         self._asset_repo = AssetRepository(db)
         self._exposure_repo = ExposureRepository(db)
         self._remediation_repo = RemediationRepository(db)
         self._session_repo = SessionRepository(db)
         self._audit_repo = AuditRepository(db)
 
-    def _seed_if_empty(self) -> None:
-        if self._db.query(BusinessServiceModel).count() > 0:
-            return
-        self._seed_all()
-
-    def _seed_all(self) -> None:
+    def _resolve_org_id(self) -> str:
+        if self._org_id is not None:
+            return self._org_id
         org = self._db.query(OrganizationModel).first()
-        if not org:
+        if org is None:
             org = OrganizationModel(name="Northstar Financial Services")
             self._db.add(org)
             self._db.flush()
+        return org.id
+
+    def _seed_if_empty(self) -> str:
+        org_id = self._resolve_org_id()
+        if self._db.query(BusinessServiceModel).filter(
+            BusinessServiceModel.organization_id == org_id
+        ).count() > 0:
+            return org_id
+        self._seed_all(org_id)
+        return org_id
+
+    def _seed_all(self, org_id: str) -> None:
         for bs in seed_data.BUSINESS_SERVICES:
-            self._db.add(BusinessServiceModel(**bs.model_dump(), organization_id=org.id))
+            self._db.add(BusinessServiceModel(**bs.model_dump(), organization_id=org_id))
         for a in seed_data.ASSETS:
             self._db.add(AssetModel(**a.model_dump()))
         for e in seed_data.EXPOSURES:
@@ -92,8 +102,11 @@ class DataService:
     # --- Business services ---
 
     def get_business_services(self) -> list[BusinessService]:
-        self._seed_if_empty()
-        return [BusinessService.model_validate(bs) for bs in self._db.query(BusinessServiceModel).all()]
+        org_id = self._seed_if_empty()
+        models = self._db.query(BusinessServiceModel).filter(
+            BusinessServiceModel.organization_id == org_id
+        ).all()
+        return [BusinessService.model_validate(bs) for bs in models]
 
     # --- Assets ---
 
@@ -146,8 +159,6 @@ class DataService:
                 "validation": s.validation,
                 "control_gap": s.control_gap,
             } for s in sorted(ap.steps, key=lambda s: s.order)]
-            ap_dict = {c.name: getattr(ap, c.name) for c in AttackPathModel.__table__.columns}
-            ap_dict.pop("id", None)
             result.append(AttackPath(
                 id=ap.id,
                 name=ap.name,
@@ -201,15 +212,9 @@ class DataService:
                 owner=asset.owner,
                 sla=remediation_map.get(exposure.id, "Not assigned"),
                 source=exposure.source,
-                source_reference=exposure.source_reference,
-                first_seen=exposure.first_seen,
-                last_seen=exposure.last_seen,
                 validated_at=exposure.validated_at,
-                evidence_owner=exposure.evidence_owner,
-                evidence_expires_at=exposure.evidence_expires_at,
             ))
-
-        return sorted(prioritized, key=lambda item: item.ctem_score, reverse=True)
+        return sorted(prioritized, key=lambda p: p.ctem_score, reverse=True)
 
     # --- Program summary ---
 
@@ -238,7 +243,7 @@ class DataService:
                 "attend_decisions": attend_count,
                 "validated_attack_paths": len(validated_paths),
                 "sla_at_risk": 2,
-                "exposure_reduction_goal": "35% validated critical-path reduction in 90 days",
+                "exposure_reduction_goal": "80% Act decision resolution within 90 days",
             },
             operating_principles=[
                 "Scope starts with business services and crown jewels, not scanner coverage.",
@@ -255,23 +260,24 @@ class DataService:
             ],
         )
 
-    # --- Workshop artifacts ---
-
     def get_workshop_artifacts(self) -> WorkshopArtifacts:
         return deepcopy(seed_data.WORKSHOP_ARTIFACTS)
 
     # --- Reset ---
 
     def reset(self) -> None:
+        org_id = self._resolve_org_id()
         self._db.query(RemediationActionModel).delete()
         self._db.query(ExposureModel).delete()
-        self._db.query(AssetModel).delete()
         self._db.query(AttackPathStepModel).delete()
         self._db.query(AttackPathModel).delete()
+        self._db.query(AssetModel).delete()
         self._db.query(MaturityDomainModel).delete()
-        self._db.query(BusinessServiceModel).delete()
+        self._db.query(BusinessServiceModel).filter(
+            BusinessServiceModel.organization_id == org_id
+        ).delete()
         self._db.commit()
-        self._seed_all()
+        self._seed_all(org_id)
 
     # --- Sessions ---
 
@@ -333,4 +339,4 @@ class DataService:
         return event_id
 
     def list_audit_events(self, limit: int = 100) -> list[AuditEvent]:
-        return self._audit_repo.list_recent(limit=limit)
+        return self._audit_repo.list_recent(limit)

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.core.auth import create_access_token, hash_password, verify_password
 from app.db.models import OrganizationModel, UserModel
-from app.dependencies import get_current_user, get_db
+from app.dependencies import get_db, require_current_user
 from sqlalchemy.orm import Session
 
 router = APIRouter(tags=["Auth"])
@@ -13,7 +13,7 @@ class RegisterRequest(BaseModel):
     email: str
     password: str
     name: str
-    organization: str = "Default"
+    organization_name: str = "Default"
 
 
 class LoginRequest(BaseModel):
@@ -41,9 +41,9 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
 
-    org = db.query(OrganizationModel).filter(OrganizationModel.name == body.organization).first()
+    org = db.query(OrganizationModel).filter(OrganizationModel.name == body.organization_name).first()
     if not org:
-        org = OrganizationModel(name=body.organization)
+        org = OrganizationModel(name=body.organization_name)
         db.add(org)
         db.flush()
 
@@ -82,7 +82,7 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
 
 
 @router.get("/api/auth/me", response_model=UserResponse)
-def me(user: UserModel = Depends(get_current_user)):
+def me(user: UserModel = Depends(require_current_user)):
     return UserResponse(
         id=user.id, email=user.email, name=user.name,
         organization_id=user.organization_id, role=user.role,
