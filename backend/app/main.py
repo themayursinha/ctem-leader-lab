@@ -9,6 +9,7 @@ from app.api.router import api_router
 from app.api.v1.admin import router as admin_router
 from app.config import settings
 from app.core.logging_config import setup_logging
+from app.middleware.cache import CacheControlMiddleware
 from app.middleware.ratelimit import RateLimitMiddleware
 from app.middleware.request_id import RequestIDMiddleware
 
@@ -29,6 +30,7 @@ def create_app() -> FastAPI:
 
     app.add_middleware(RateLimitMiddleware, max_requests=200, window_seconds=60)
     app.add_middleware(RequestIDMiddleware)
+    app.add_middleware(CacheControlMiddleware)
 
     app.add_middleware(
         CORSMiddleware,

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
@@ -21,14 +21,15 @@ import Breadcrumbs from './components/Breadcrumbs'
 import ErrorBoundary from './components/ErrorBoundary'
 import Skeleton from './components/Skeleton'
 import { ToastProvider } from './components/Toast'
-import Discovery from './views/Discovery'
-import Guide from './views/Guide'
-import Mobilization from './views/Mobilization'
-import Prioritization from './views/Prioritization'
-import Scoping from './views/Scoping'
-import Validation from './views/Validation'
-import Sessions from './views/Sessions'
-import WorkshopPack from './views/WorkshopPack'
+
+const Discovery = lazy(() => import('./views/Discovery'))
+const Guide = lazy(() => import('./views/Guide'))
+const Mobilization = lazy(() => import('./views/Mobilization'))
+const Prioritization = lazy(() => import('./views/Prioritization'))
+const Scoping = lazy(() => import('./views/Scoping'))
+const Validation = lazy(() => import('./views/Validation'))
+const Sessions = lazy(() => import('./views/Sessions'))
+const WorkshopPack = lazy(() => import('./views/WorkshopPack'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -130,6 +131,23 @@ const DashboardLoading = () => (
         <div className="metric-card" key={i}>
           <Skeleton width="80px" height="0.85rem" />
           <Skeleton width="60px" height="1.8rem" margin="8px 0 0" />
+        </div>
+      ))}
+    </section>
+  </div>
+)
+
+const PageLoader = () => (
+  <div className="page-stack">
+    <section className="page-header">
+      <Skeleton width="180px" height="1rem" />
+      <Skeleton width="240px" height="1.6rem" margin="8px 0 0" />
+    </section>
+    <section className="metric-grid">
+      {[1, 2, 3].map((i) => (
+        <div className="metric-card" key={i}>
+          <Skeleton width="70px" height="0.75rem" />
+          <Skeleton width="50px" height="1.5rem" margin="8px 0 0" />
         </div>
       ))}
     </section>
@@ -337,17 +355,19 @@ const AppContent = () => {
         <Breadcrumbs pathname={location.pathname} />
         <WelcomeModal />
         <ErrorBoundary>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/scoping" element={<Scoping />} />
-            <Route path="/discovery" element={<Discovery />} />
-            <Route path="/prioritization" element={<Prioritization DecisionBadge={DecisionBadge} />} />
-            <Route path="/validation" element={<Validation />} />
-            <Route path="/mobilization" element={<Mobilization DecisionBadge={DecisionBadge} />} />
-            <Route path="/workshop-pack" element={<WorkshopPack />} />
-            <Route path="/sessions" element={<Sessions />} />
-            <Route path="/guide" element={<Guide />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/scoping" element={<Scoping />} />
+              <Route path="/discovery" element={<Discovery />} />
+              <Route path="/prioritization" element={<Prioritization DecisionBadge={DecisionBadge} />} />
+              <Route path="/validation" element={<Validation />} />
+              <Route path="/mobilization" element={<Mobilization DecisionBadge={DecisionBadge} />} />
+              <Route path="/workshop-pack" element={<WorkshopPack />} />
+              <Route path="/sessions" element={<Sessions />} />
+              <Route path="/guide" element={<Guide />} />
+            </Routes>
+          </Suspense>
         </ErrorBoundary>
       </main>
     </div>
