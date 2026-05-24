@@ -12,3 +12,4 @@ frontend/dist/
 output/playwright/
 *.log
 .DS_Store
+*.db

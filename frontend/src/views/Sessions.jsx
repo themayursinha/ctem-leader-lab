@@ -1,0 +1,227 @@
+import { useEffect, useState } from 'react';
+import { Loader, Save, Trash2, Upload, FileText } from 'lucide-react';
+
+import { api } from '../api';
+
+const Sessions = () => {
+  const [sessions, setSessions] = useState([]);
+  const [sessionName, setSessionName] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(null);
+  const [deleting, setDeleting] = useState(null);
+  const [message, setMessage] = useState(null);
+  const [fetching, setFetching] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    api.listSessions().then((data) => {
+      setSessions(data);
+      setFetching(false);
+    }).catch((err) => {
+      setError(err);
+      setFetching(false);
+    });
+  }, []);
+
+  const handleSave = async () => {
+    const name = sessionName.trim();
+    if (!name) return;
+    setSaving(true);
+    setMessage(null);
+    try {
+      await api.saveSession(name);
+      setSessionName('');
+      setMessage({ type: 'success', text: `Session "${name}" saved.` });
+      setFetching(true);
+      api.listSessions().then((data) => {
+        setSessions(data);
+        setFetching(false);
+      }).catch((err) => {
+        setError(err);
+        setFetching(false);
+      });
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleLoad = async (sessionId, sessionName) => {
+    setLoading(sessionId);
+    setMessage(null);
+    try {
+      await api.loadSession(sessionId);
+      setMessage({ type: 'success', text: `Session "${sessionName}" loaded. Refreshing...` });
+      window.setTimeout(() => window.location.reload(), 800);
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
+      setLoading(null);
+    }
+  };
+
+  const handleDelete = async (sessionId, sessionName) => {
+    if (!window.confirm(`Delete session "${sessionName}"? This cannot be undone.`)) return;
+    setDeleting(sessionId);
+    setMessage(null);
+    try {
+      await api.deleteSession(sessionId);
+      setMessage({ type: 'success', text: `Session "${sessionName}" deleted.` });
+      setFetching(true);
+      api.listSessions().then((data) => {
+        setSessions(data);
+        setFetching(false);
+      }).catch((err) => {
+        setError(err);
+        setFetching(false);
+      });
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handleSummary = async () => {
+    setMessage(null);
+    try {
+      const blob = await api.getExecutiveSummary('markdown');
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'ctem-executive-summary.md';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
+    }
+  };
+
+  if (!api.isLiveMode()) {
+    return (
+      <div className="notice-panel">
+        Sessions are only available when connected to a live backend. Start the API server with <code>VITE_API_BASE_URL</code> set.
+      </div>
+    );
+  }
+
+  return (
+    <div className="page-stack">
+      <section className="page-header">
+        <div>
+          <p className="eyebrow">Workshop Sessions</p>
+          <h1 className="page-title">Workshop Sessions</h1>
+          <p className="page-intro">
+            Save, load, and manage CTEM workshop snapshots. Each session captures the current state of assets, exposures, and remediation actions.
+          </p>
+        </div>
+      </section>
+
+      <section className="content-section">
+        <div className="section-heading">
+          <h2>Save Current Session</h2>
+          <p>Name the current workshop state so it can be restored later.</p>
+        </div>
+        <div className="session-save-row">
+          <input
+            className="session-input"
+            type="text"
+            placeholder="e.g. Sprint 12 review, pre-audit baseline"
+            value={sessionName}
+            onChange={(e) => setSessionName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+            disabled={saving}
+          />
+          <button
+            className="tool-button"
+            type="button"
+            onClick={handleSave}
+            disabled={saving || !sessionName.trim()}
+          >
+            {saving ? <Loader size={16} className="spin" /> : <Save size={16} />}
+            <span>{saving ? 'Saving...' : 'Save Session'}</span>
+          </button>
+        </div>
+      </section>
+
+      <section className="content-section">
+        <div className="section-heading">
+          <h2>Saved Sessions</h2>
+          <p>Click Load to restore a session. All current views will refresh.</p>
+        </div>
+        {fetching ? (
+          <div className="notice-panel">Loading sessions...</div>
+        ) : error ? (
+          <div className="notice-panel error">Unable to load sessions. {error.message}</div>
+        ) : sessions.length === 0 ? (
+          <div className="notice-panel">No saved sessions yet.</div>
+        ) : (
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Created</th>
+                  <th>Updated</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sessions.map((session) => (
+                  <tr key={session.id}>
+                    <td><strong>{session.name}</strong></td>
+                    <td>{new Date(session.created_at).toLocaleString()}</td>
+                    <td>{new Date(session.updated_at).toLocaleString()}</td>
+                    <td>
+                      <div className="session-actions">
+                        <button
+                          className="tool-button compact"
+                          type="button"
+                          onClick={() => handleLoad(session.id, session.name)}
+                          disabled={loading === session.id}
+                        >
+                          {loading === session.id ? <Loader size={14} className="spin" /> : <Upload size={14} />}
+                          <span>Load</span>
+                        </button>
+                        <button
+                          className="tool-button compact danger"
+                          type="button"
+                          onClick={() => handleDelete(session.id, session.name)}
+                          disabled={deleting === session.id}
+                        >
+                          <Trash2 size={14} />
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section className="content-section">
+        <div className="section-heading">
+          <h2>Executive Summary</h2>
+          <p>Download a formatted Markdown report of the current CTEM program state.</p>
+        </div>
+        <button className="tool-button" type="button" onClick={handleSummary}>
+          <FileText size={16} />
+          <span>Download Executive Summary</span>
+        </button>
+      </section>
+
+      {message && (
+        <div className={`session-message ${message.type}`}>
+          {message.text}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Sessions;

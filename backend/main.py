@@ -4,7 +4,7 @@ from typing import Any
 
 from fastapi import FastAPI, File, HTTPException, Query, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 
 from data import (
     ASSETS,
@@ -347,3 +347,143 @@ def reset_data(confirm: bool = Query(False, alias="X-Confirm-Reset")):
         )
     DATA.reset()
     return {"status": "reset to seed data"}
+
+
+# ---------- Session endpoints ----------
+
+
+@app.post("/api/sessions")
+def create_session(name: str = Query(..., min_length=1, max_length=200)):
+    session_id = DATA.save_session(name=name.strip())
+    return {"id": session_id, "name": name.strip()}
+
+
+@app.get("/api/sessions")
+def list_sessions():
+    return DATA.list_sessions()
+
+
+@app.get("/api/sessions/{session_id}")
+def get_session(session_id: str):
+    info = DATA.get_session_info(session_id)
+    if info is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+    return {
+        "id": info["id"],
+        "name": info["name"],
+        "created_at": info["created_at"],
+        "updated_at": info["updated_at"],
+    }
+
+
+@app.post("/api/sessions/{session_id}/load")
+def load_session(session_id: str):
+    ok = DATA.load_session(session_id)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+    return {"status": f"Session {session_id} loaded"}
+
+
+@app.delete("/api/sessions/{session_id}")
+def delete_session(session_id: str):
+    ok = DATA.delete_session(session_id)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+    return {"status": f"Session {session_id} deleted"}
+
+
+# ---------- Executive summary endpoint ----------
+
+
+@app.get("/api/executive-summary")
+def executive_summary(format: str = Query("markdown", pattern="^(markdown|html)$")):
+    prioritized = prioritized_exposures()
+    act_items = [p for p in prioritized if p.decision == "Act"]
+    attend_items = [p for p in prioritized if p.decision == "Attend"]
+    scoped_services = [s for s in BUSINESS_SERVICES if s.in_scope]
+    validated_paths = [p for p in ATTACK_PATHS if p.status == "Validated"]
+
+    summary = _build_summary_text(
+        organization="Northstar Financial Services",
+        scoped_count=len(scoped_services),
+        crown_jewel_count=len([a for a in ASSETS if a.crown_jewel]),
+        exposure_count=len(EXPOSURES),
+        act_count=len(act_items),
+        attend_count=len(attend_items),
+        validated_path_count=len(validated_paths),
+        maturity_current=round(sum(d.score for d in MATURITY) / len(MATURITY), 1),
+        maturity_target=round(sum(d.target for d in MATURITY) / len(MATURITY), 1),
+        act_items=[(p.title, p.ctem_score, p.next_action) for p in act_items],
+        attend_items=[(p.title, p.ctem_score, p.next_action) for p in attend_items],
+    )
+
+    if format == "html":
+        html = summary.replace("\n", "<br>\n").replace("## ", "<h2>").replace("### ", "<h3>")
+        html = f"<html><body style='font-family:system-ui,sans-serif;max-width:800px;margin:40px auto'>{html}</body></html>"
+        return HTMLResponse(content=html)
+
+    return StreamingResponse(
+        iter([summary]),
+        media_type="text/markdown",
+        headers={"Content-Disposition": 'attachment; filename="ctem-executive-summary.md"'},
+    )
+
+
+def _build_summary_text(
+    organization: str,
+    scoped_count: int,
+    crown_jewel_count: int,
+    exposure_count: int,
+    act_count: int,
+    attend_count: int,
+    validated_path_count: int,
+    maturity_current: float,
+    maturity_target: float,
+    act_items: list[tuple[str, int, str]],
+    attend_items: list[tuple[str, int, str]],
+) -> str:
+    lines = [
+        f"# CTEM Executive Summary — {organization}",
+        "",
+        f"**Generated:** {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M UTC')}",
+        "",
+        "## Program Overview",
+        "",
+        f"| Metric | Value |",
+        "| --- | --- |",
+        f"| Scoped services | {scoped_count} |",
+        f"| Crown-jewel assets | {crown_jewel_count} |",
+        f"| Total exposures | {exposure_count} |",
+        f"| Act decisions | {act_count} |",
+        f"| Attend decisions | {attend_count} |",
+        f"| Validated attack paths | {validated_path_count} |",
+        f"| Maturity (current/target) | {maturity_current}/{maturity_target} |",
+        "",
+        "## Act Decisions — Immediate Mobilization",
+        "",
+    ]
+    if act_items:
+        for title, score, action in act_items:
+            lines.append(f"- **{title}** (CTEM {score}): {action}")
+    else:
+        lines.append("*No Act decisions in the current view.*")
+    lines.append("")
+
+    if attend_items:
+        lines.append("## Attend Decisions — Leadership Coordination")
+        lines.append("")
+        for title, score, action in attend_items:
+            lines.append(f"- **{title}** (CTEM {score}): {action}")
+        lines.append("")
+
+    lines.extend([
+        "## Exposure Reduction Goal",
+        "",
+        "35% validated critical-path reduction in 90 days.",
+        "",
+        "---",
+        "",
+        "*Generated by CTEM Leader Lab*",
+        "",
+    ])
+    return "\n".join(lines)

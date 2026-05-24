@@ -920,6 +920,75 @@ dd {
   }
 }
 
+.session-save-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.session-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  outline: none;
+}
+
+.session-input:focus {
+  border-color: var(--cyan);
+}
+
+.session-input::placeholder {
+  color: var(--muted);
+}
+
+.session-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.tool-button.compact {
+  min-height: 32px;
+  padding: 5px 10px;
+  font-size: 0.82rem;
+}
+
+.tool-button.danger:hover {
+  border-color: rgba(248, 113, 113, 0.6);
+  color: var(--red);
+}
+
+.session-message {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.session-message.success {
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--green);
+}
+
+.session-message.error {
+  border-color: rgba(248, 113, 113, 0.5);
+  color: var(--red);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
 @media print {
   body {
     background: #fff;

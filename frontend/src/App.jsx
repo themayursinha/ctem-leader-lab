@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   Activity,
+  Bookmark,
   ClipboardList,
   Crosshair,
   LayoutDashboard,
@@ -17,6 +18,7 @@ import Mobilization from './views/Mobilization';
 import Prioritization from './views/Prioritization';
 import Scoping from './views/Scoping';
 import Validation from './views/Validation';
+import Sessions from './views/Sessions';
 import WorkshopPack from './views/WorkshopPack';
 
 const LoadingState = ({ label = 'Loading CTEM data...' }) => (
@@ -166,6 +168,8 @@ function App() {
             <SidebarItem to="/mobilization" icon={Workflow} label="5. Mobilization" />
             <div className="nav-section-label">Takeaway</div>
             <SidebarItem to="/workshop-pack" icon={ClipboardList} label="Workshop Pack" />
+            <div className="nav-section-label">Workspace</div>
+            <SidebarItem to="/sessions" icon={Bookmark} label="Sessions" />
           </nav>
         </aside>
         <main className="main-content">
@@ -177,6 +181,7 @@ function App() {
             <Route path="/validation" element={<Validation />} />
             <Route path="/mobilization" element={<Mobilization DecisionBadge={DecisionBadge} />} />
             <Route path="/workshop-pack" element={<WorkshopPack />} />
+            <Route path="/sessions" element={<Sessions />} />
           </Routes>
         </main>
       </div>

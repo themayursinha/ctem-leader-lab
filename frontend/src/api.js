@@ -111,4 +111,56 @@ export const api = {
     }
     return response.json();
   },
+
+  async saveSession(name) {
+    const response = await fetch(`${API_BASE_URL}/api/sessions?name=${encodeURIComponent(name)}`, {
+      method: 'POST',
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Save session failed (${response.status}): ${text}`);
+    }
+    return response.json();
+  },
+
+  async listSessions() {
+    const response = await fetch(`${API_BASE_URL}/api/sessions`);
+    if (!response.ok) {
+      throw new Error(`List sessions failed: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  async loadSession(sessionId) {
+    const response = await fetch(`${API_BASE_URL}/api/sessions/${sessionId}/load`, {
+      method: 'POST',
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Load session failed (${response.status}): ${text}`);
+    }
+    return response.json();
+  },
+
+  async deleteSession(sessionId) {
+    const response = await fetch(`${API_BASE_URL}/api/sessions/${sessionId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Delete session failed (${response.status}): ${text}`);
+    }
+    return response.json();
+  },
+
+  async getExecutiveSummary(format = 'markdown') {
+    const response = await fetch(`${API_BASE_URL}/api/executive-summary?format=${format}`);
+    if (!response.ok) {
+      throw new Error(`Executive summary failed: ${response.status}`);
+    }
+    if (format === 'html') {
+      return response.text();
+    }
+    return response.blob();
+  },
 };

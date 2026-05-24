@@ -1,6 +1,8 @@
+import json
 import threading
 from copy import deepcopy
 
+from db import DB
 from models import (
     Asset,
     AttackPath,
@@ -11,6 +13,10 @@ from models import (
     RemediationAction,
     WorkshopArtifacts,
 )
+
+
+def _to_json(items: list) -> str:
+    return json.dumps([item.model_dump(mode="json") for item in items], default=str)
 
 
 BUSINESS_SERVICES = [
@@ -556,6 +562,7 @@ WORKSHOP_ARTIFACTS = deepcopy(_SEED_WORKSHOP_ARTIFACTS)
 class DataStore:
     def __init__(self):
         self._lock = threading.Lock()
+        self._ready = False
         self._seed_business_services = list(BUSINESS_SERVICES)
         self._seed_assets = list(ASSETS)
         self._seed_exposures = list(EXPOSURES)
@@ -564,20 +571,56 @@ class DataStore:
         self._seed_remediation_actions = list(REMEDIATION_ACTIONS)
         self._seed_workshop_artifacts = deepcopy(_SEED_WORKSHOP_ARTIFACTS)
 
+        seed_data = {
+            "assets": _to_json(ASSETS),
+            "exposures": _to_json(EXPOSURES),
+            "remediation_actions": _to_json(REMEDIATION_ACTIONS),
+        }
+        DB.init(seed=seed_data)
+        self._load_from_db()
+        self._ready = True
+
+    def _persist(self):
+        if not self._ready:
+            return
+        DB.save_current({
+            "assets": _to_json(ASSETS),
+            "exposures": _to_json(EXPOSURES),
+            "remediation_actions": _to_json(REMEDIATION_ACTIONS),
+        })
+
+    def _load_from_db(self):
+        current = DB.load_current()
+        if "assets" in current:
+            parsed = [Asset(**item) for item in json.loads(current["assets"])]
+            ASSETS.clear()
+            ASSETS.extend(parsed)
+        if "exposures" in current:
+            parsed = [Exposure(**item) for item in json.loads(current["exposures"])]
+            EXPOSURES.clear()
+            EXPOSURES.extend(parsed)
+        if "remediation_actions" in current:
+            parsed = [RemediationAction(**item) for item in json.loads(current["remediation_actions"])]
+            REMEDIATION_ACTIONS.clear()
+            REMEDIATION_ACTIONS.extend(parsed)
+
     def replace_assets(self, new_assets):
         with self._lock:
             ASSETS.clear()
             ASSETS.extend(new_assets)
+            self._persist()
 
     def replace_exposures(self, new_exposures):
         with self._lock:
             EXPOSURES.clear()
             EXPOSURES.extend(new_exposures)
+            self._persist()
 
     def replace_remediation_actions(self, new_actions):
         with self._lock:
             REMEDIATION_ACTIONS.clear()
             REMEDIATION_ACTIONS.extend(new_actions)
+            self._persist()
 
     def reset(self):
         with self._lock:
@@ -595,6 +638,45 @@ class DataStore:
             MATURITY.extend(deepcopy(self._seed_maturity))
             global WORKSHOP_ARTIFACTS
             WORKSHOP_ARTIFACTS = deepcopy(self._seed_workshop_artifacts)
+            self._persist()
+
+    def save_session(self, name: str) -> str:
+        with self._lock:
+            return DB.save_session(
+                name=name,
+                assets=_to_json(ASSETS),
+                exposures=_to_json(EXPOSURES),
+                remediation_actions=_to_json(REMEDIATION_ACTIONS),
+            )
+
+    def list_sessions(self) -> list[dict]:
+        return DB.list_sessions()
+
+    def load_session(self, session_id: str) -> bool:
+        row = DB.get_session(session_id)
+        if row is None:
+            return False
+        with self._lock:
+            try:
+                parsed_assets = [Asset(**item) for item in json.loads(row["assets"])]
+                parsed_exposures = [Exposure(**item) for item in json.loads(row["exposures"])]
+                parsed_remediation = [RemediationAction(**item) for item in json.loads(row["remediation_actions"])]
+            except (json.JSONDecodeError, Exception):
+                return False
+            ASSETS.clear()
+            ASSETS.extend(parsed_assets)
+            EXPOSURES.clear()
+            EXPOSURES.extend(parsed_exposures)
+            REMEDIATION_ACTIONS.clear()
+            REMEDIATION_ACTIONS.extend(parsed_remediation)
+            self._persist()
+        return True
+
+    def delete_session(self, session_id: str) -> bool:
+        return DB.delete_session(session_id)
+
+    def get_session_info(self, session_id: str):
+        return DB.get_session(session_id)
 
 
 DATA = DataStore()

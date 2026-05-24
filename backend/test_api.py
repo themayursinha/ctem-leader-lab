@@ -1,5 +1,8 @@
 import csv
 import io
+import os
+
+os.environ["CTEM_DB_PATH"] = "/tmp/ctem_test.db"
 
 from fastapi.testclient import TestClient
 
@@ -226,3 +229,100 @@ def test_reset_restores_seed_data():
     ids = {a["id"] for a in assets}
     assert "temp-imported" not in ids
     assert "asset-payment-api" in ids
+
+
+# ---------- Session tests ----------
+
+
+def test_save_and_list_sessions():
+    DATA.reset()
+    resp = client.post("/api/sessions?name=Test%20Session%201")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "id" in data
+    assert data["name"] == "Test Session 1"
+    session_id = data["id"]
+
+    sessions = client.get("/api/sessions").json()
+    ids = [s["id"] for s in sessions]
+    assert session_id in ids
+
+
+def test_get_session():
+    DATA.reset()
+    resp = client.post("/api/sessions?name=MySession")
+    session_id = resp.json()["id"]
+
+    resp = client.get(f"/api/sessions/{session_id}")
+    assert resp.status_code == 200
+    assert resp.json()["name"] == "MySession"
+
+
+def test_get_session_not_found():
+    resp = client.get("/api/sessions/nonexistent-id")
+    assert resp.status_code == 404
+
+
+def test_load_session():
+    DATA.reset()
+    exposures_before = client.get("/api/exposures").json()
+    before_ids = {e["id"] for e in exposures_before}
+
+    resp = client.post("/api/sessions?name=Snapshot")
+    session_id = resp.json()["id"]
+
+    DATA.reset()
+    exposures_after_reset = client.get("/api/exposures").json()
+    assert {e["id"] for e in exposures_after_reset} == before_ids
+
+    resp = client.post(f"/api/sessions/{session_id}/load")
+    assert resp.status_code == 200
+
+    exposures_loaded = client.get("/api/exposures").json()
+    assert {e["id"] for e in exposures_loaded} == before_ids
+
+
+def test_delete_session():
+    DATA.reset()
+    resp = client.post("/api/sessions?name=DeleteMe")
+    session_id = resp.json()["id"]
+
+    resp = client.delete(f"/api/sessions/{session_id}")
+    assert resp.status_code == 200
+
+    resp = client.get(f"/api/sessions/{session_id}")
+    assert resp.status_code == 404
+
+
+def test_delete_session_not_found():
+    resp = client.delete("/api/sessions/nonexistent")
+    assert resp.status_code == 404
+
+
+# ---------- Executive summary tests ----------
+
+
+def test_executive_summary_markdown():
+    DATA.reset()
+    resp = client.get("/api/executive-summary?format=markdown")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("text/markdown")
+    body = resp.text
+    assert "CTEM Executive Summary" in body
+    assert "Act Decisions" in body
+    assert "Northstar Financial Services" in body
+
+
+def test_executive_summary_html():
+    DATA.reset()
+    resp = client.get("/api/executive-summary?format=html")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("text/html")
+    assert "<h2>" in resp.text or "CTEM Executive Summary" in resp.text
+
+
+def test_executive_summary_defaults_to_markdown():
+    DATA.reset()
+    resp = client.get("/api/executive-summary")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("text/markdown")
