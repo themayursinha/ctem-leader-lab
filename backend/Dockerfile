@@ -1,5 +1,5 @@
 # ---- Build stage ----
-FROM python:3.11-slim AS builder
+FROM python:3.11-slim@sha256:a3ab0b966bc4e91546a033e22093cb840908979487a9fc0e6e38295747e49ac0 AS builder
 
 WORKDIR /build
 
@@ -9,7 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # ---- Runtime stage ----
-FROM python:3.11-slim
+FROM python:3.11-slim@sha256:a3ab0b966bc4e91546a033e22093cb840908979487a9fc0e6e38295747e49ac0
 
 RUN groupadd -r ctem && useradd -r -g ctem ctem
 
