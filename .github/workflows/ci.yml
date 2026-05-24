@@ -31,7 +31,10 @@ jobs:
         run: pip-audit -r requirements.txt
 
       - name: Run tests
-        run: pytest
+        run: pytest tests/test_api.py tests/test_auth.py tests/test_scoring.py
+
+      - name: Integration tests (PostgreSQL via Testcontainers)
+        run: pytest tests/test_integration.py
 
   frontend:
     name: Frontend lint and build
@@ -58,6 +61,9 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Run tests
+        run: npm run test
 
       - name: Build
         run: npm run build

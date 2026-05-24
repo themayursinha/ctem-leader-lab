@@ -16,7 +16,7 @@ class OrganizationModel(Base):
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(200), nullable=False, unique=True)
-    created_at = Column(String(30), nullable=False, default=lambda: _utcnow().isoformat())
+    created_at = Column(String(40), nullable=False, default=lambda: _utcnow().isoformat())
 
     users = relationship("UserModel", back_populates="organization", cascade="all, delete-orphan")
     business_services = relationship("BusinessServiceModel", back_populates="organization", cascade="all, delete-orphan")
@@ -31,7 +31,7 @@ class UserModel(Base):
     name = Column(String(200), nullable=False)
     organization_id = Column(String, ForeignKey("organizations.id"), nullable=False, index=True)
     role = Column(String(20), nullable=False, default="viewer")
-    created_at = Column(String(30), nullable=False, default=lambda: _utcnow().isoformat())
+    created_at = Column(String(40), nullable=False, default=lambda: _utcnow().isoformat())
 
     organization = relationship("OrganizationModel", back_populates="users")
 
@@ -179,8 +179,8 @@ class SessionModel(Base):
 
     id = Column(String, primary_key=True)
     name = Column(String(200), nullable=False)
-    created_at = Column(String(30), nullable=False)
-    updated_at = Column(String(30), nullable=False)
+    created_at = Column(String(40), nullable=False)
+    updated_at = Column(String(40), nullable=False)
     assets = Column(JSON, nullable=False)
     exposures = Column(JSON, nullable=False)
     remediation_actions = Column(JSON, nullable=False)
@@ -190,7 +190,7 @@ class AuditEventModel(Base):
     __tablename__ = "audit_events"
 
     id = Column(String, primary_key=True)
-    created_at = Column(String(30), nullable=False)
+    created_at = Column(String(40), nullable=False)
     action = Column(String(100), nullable=False)
     resource_type = Column(String(100), nullable=False)
     resource_id = Column(String, nullable=True)

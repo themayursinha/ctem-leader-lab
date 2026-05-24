@@ -304,6 +304,8 @@ class DataService:
             return False
         self._db.query(RemediationActionModel).delete()
         self._db.query(ExposureModel).delete()
+        self._db.query(AttackPathStepModel).delete()
+        self._db.query(AttackPathModel).delete()
         self._db.query(AssetModel).delete()
         self._db.commit()
         for a_data in s.assets:

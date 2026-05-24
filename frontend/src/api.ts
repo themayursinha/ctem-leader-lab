@@ -222,7 +222,7 @@ export const api = {
 
   // Auth endpoints
   async register(email: string, password: string, name: string, organizationName?: string) {
-    const response = await fetch(apiUrl('/api/v1/auth/register'), {
+    const response = await fetch(apiUrl('/api/auth/register'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, name, organization_name: organizationName }),
@@ -235,7 +235,7 @@ export const api = {
   },
 
   async login(email: string, password: string) {
-    const response = await fetch(apiUrl('/api/v1/auth/login'), {
+    const response = await fetch(apiUrl('/api/auth/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -247,7 +247,7 @@ export const api = {
   },
 
   async getMe(token: string) {
-    const response = await fetch(apiUrl('/api/v1/auth/me'), {
+    const response = await fetch(apiUrl('/api/auth/me'), {
       headers: { Authorization: `Bearer ${token}` },
     })
     if (!response.ok) {
