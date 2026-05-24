@@ -146,14 +146,32 @@ Decision outcomes:
 
 Read more in [docs/scoring-model.md](./docs/scoring-model.md).
 
+## Features
+
+- **Five CTEM stages** — Navigate Scoping, Discovery, Prioritization, Validation, and Mobilization with realistic seed data.
+- **CSV import/export** — Export assets, exposures, and remediation actions; import changes with validation and error reporting.
+- **Workshop sessions** — Save and load named snapshots of the full workspace state.
+- **Executive summary** — Download a Markdown or HTML report of the current program state.
+- **Workshop Pack** — Generate a facilitator-ready takeaway with templates, remediation board snapshot, and 30/60/90-day roadmap.
+- **Docker one-command startup** — `make up` or `docker compose up --build -d`.
+- **User Guide & Glossary** — In-app reference explaining CTEM concepts, EPSS, KEV, CTEM score, and more.
+- **Toast notifications** — Transient success/error feedback for all import/export/session actions.
+- **Search & sort** — Filter and sort tables in Scoping and Discovery views.
+- **Maturity chart** — Visual bar chart of program maturity domains on the dashboard.
+- **Skeleton loading** — Shimmer placeholders while data loads.
+- **Accessible** — Skip-to-content, hamburger menu on mobile, ARIA labels, and keyboard-friendly navigation.
+
 ## Project Structure
 
 ```text
-backend/    FastAPI API, seeded CTEM scenario data, scoring engine, tests
-frontend/   React/Vite leader workbench UI
-docs/       Operating model, quick start, scoring model, workshop guide
-assets/     README and project visuals
-.github/    CI workflow and contribution templates
+backend/         FastAPI API, seeded CTEM scenario data, scoring engine, tests
+frontend/        React/Vite leader workbench UI
+docs/            Operating model, quick start, scoring model, workshop guide
+assets/          README and project visuals
+.github/         CI workflow and contribution templates
+docker-compose.yml   Docker one-command startup
+Makefile             make up / down / build / test / logs
+.env.example         Documented environment variables
 ```
 
 ## Verification

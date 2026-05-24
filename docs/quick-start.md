@@ -1,14 +1,18 @@
 # Quick Start
 
-This guide gets CTEM Leader Lab running locally.
+## Using Docker (recommended)
 
-## Prerequisites
+See the [main README](../README.md#using-docker-recommended) for one-command setup with Docker Compose.
+
+## Manual Development Setup
+
+### Prerequisites
 
 - Python 3.9 or newer
 - Node.js 20 or newer
 - npm
 
-## Start the Backend
+### Start the Backend
 
 ```bash
 cd backend
@@ -28,7 +32,7 @@ Useful endpoints:
 - `GET /api/attack-paths`
 - `GET /api/remediation-actions`
 
-## Start the Frontend
+### Start the Frontend
 
 ```bash
 cd frontend
@@ -46,7 +50,7 @@ VITE_API_BASE_URL=http://localhost:8000 npm run dev
 
 If the backend is not running, the frontend falls back to static demo data in `frontend/public/api`. This keeps the GitHub Pages demo usable as a read-only scenario walkthrough.
 
-## Verify
+### Verify
 
 ```bash
 cd backend
