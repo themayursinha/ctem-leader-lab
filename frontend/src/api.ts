@@ -1,4 +1,5 @@
 import type {
+  AuthResponse,
   ProgramSummary,
   MaturityDomain,
   BusinessService,
@@ -9,8 +10,9 @@ import type {
   RemediationAction,
   WorkshopArtifacts,
   ImportResult,
-  AuthResponse,
 } from './types/api'
+
+import { useAuthStore } from './store'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string | undefined
 const isLiveMode = !!import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_LIVE === 'true'
@@ -33,6 +35,11 @@ function setAdminToken(token: string): void {
 function adminHeaders(): Record<string, string> {
   const token = getAdminToken()
   return token ? { 'X-CTEM-Admin-Token': token } : {}
+}
+
+function authHeaders(): Record<string, string> {
+  const token = useAuthStore.getState().token
+  return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
 async function mutationError(response: Response, label: string): Promise<never> {
@@ -60,7 +67,8 @@ async function getJson<T>(path: string): Promise<T> {
   }
 
   try {
-    const response = await fetch(apiUrl(path))
+    const headers: Record<string, string> = { ...authHeaders() }
+    const response = await fetch(apiUrl(path), { headers })
     if (!response.ok) {
       throw new Error(`API request failed: ${response.status} ${path}`)
     }

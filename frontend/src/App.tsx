@@ -9,6 +9,7 @@ import {
   Crosshair,
   LayoutDashboard,
   ListOrdered,
+  LogOut,
   Menu,
   Search,
   ShieldAlert,
@@ -21,11 +22,14 @@ import Breadcrumbs from './components/Breadcrumbs'
 import ErrorBoundary from './components/ErrorBoundary'
 import Skeleton from './components/Skeleton'
 import { ToastProvider } from './components/Toast'
+import { useAuthStore } from './store'
 
 const Discovery = lazy(() => import('./views/Discovery'))
 const Guide = lazy(() => import('./views/Guide'))
+const Login = lazy(() => import('./views/Login'))
 const Mobilization = lazy(() => import('./views/Mobilization'))
 const Prioritization = lazy(() => import('./views/Prioritization'))
+const Register = lazy(() => import('./views/Register'))
 const Scoping = lazy(() => import('./views/Scoping'))
 const Validation = lazy(() => import('./views/Validation'))
 const Sessions = lazy(() => import('./views/Sessions'))
@@ -299,6 +303,9 @@ const AppContent = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const mainRef = useRef<HTMLElement>(null)
   const menuRef = useRef<HTMLButtonElement>(null)
+  const { user, clearAuth, isAuthenticated } = useAuthStore()
+
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register'
 
   useEffect(() => {
     mainRef.current?.focus()
@@ -309,6 +316,21 @@ const AppContent = () => {
       menuRef.current?.focus()
     }
   }, [sidebarOpen])
+
+  if (isAuthPage) {
+    return (
+      <div className="app-container">
+        <ErrorBoundary>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
+      </div>
+    )
+  }
 
   return (
     <div className="app-container">
@@ -347,6 +369,23 @@ const AppContent = () => {
           <SidebarItem to="/sessions" icon={Bookmark} label="Sessions" onClick={() => setSidebarOpen(false)} />
           <div className="nav-section-label">Reference</div>
           <SidebarItem to="/guide" icon={Book} label="User Guide" onClick={() => setSidebarOpen(false)} />
+          {isAuthenticated() && (
+            <>
+              <div className="nav-section-label">Account</div>
+              <div className="sidebar-user">
+                <span className="sidebar-user-name">{user?.name || user?.email}</span>
+                <button
+                  className="tool-button compact"
+                  type="button"
+                  onClick={() => clearAuth()}
+                  aria-label="Sign out"
+                >
+                  <LogOut size={14} />
+                  <span>Sign out</span>
+                </button>
+              </div>
+            </>
+          )}
         </nav>
       </aside>
 
