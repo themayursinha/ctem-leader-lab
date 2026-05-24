@@ -1,5 +1,4 @@
-from data import ASSETS, BUSINESS_SERVICES, EXPOSURES, REMEDIATION_ACTIONS
-from models import Asset, Decision, Exposure, PrioritizedExposure, ScoreDriver
+from app.models.domain import Asset, Decision, Exposure, PrioritizedExposure, ScoreDriver
 
 
 CRITICALITY_POINTS = {"Low": 4, "Medium": 10, "High": 16, "Critical": 22}
@@ -7,18 +6,6 @@ REACHABILITY_POINTS = {"Isolated": 0, "Indirect": 7, "Direct": 13}
 PROXIMITY_POINTS = {"None": 0, "Adjacent": 5, "Same Service": 8, "Crown Jewel": 14}
 EFFORT_POINTS = {"High": 1, "Medium": 3, "Low": 5}
 EVIDENCE_POINTS = {"Low": 1, "Medium": 4, "High": 7}
-
-
-def _asset_map() -> dict[str, Asset]:
-    return {asset.id: asset for asset in ASSETS}
-
-
-def _service_names() -> dict[str, str]:
-    return {service.id: service.name for service in BUSINESS_SERVICES}
-
-
-def _remediation_map() -> dict[str, str]:
-    return {action.exposure_id: action.sla for action in REMEDIATION_ACTIONS}
 
 
 def score_exposure(exposure: Exposure, asset: Asset) -> tuple[int, list[ScoreDriver]]:
@@ -114,45 +101,3 @@ def why_it_matters(exposure: Exposure, asset: Asset, service_name: str) -> str:
     if asset.reachable_from_internet == "Isolated":
         return "Validation currently shows isolation, which lets leaders protect remediation capacity for higher-risk paths."
     return "The exposure is useful context for posture management, but it is not the top path to business harm."
-
-
-def prioritized_exposures() -> list[PrioritizedExposure]:
-    assets = _asset_map()
-    services = _service_names()
-    slas = _remediation_map()
-    prioritized = []
-
-    for exposure in EXPOSURES:
-        asset = assets[exposure.asset_id]
-        service_name = services[asset.service_id]
-        score, drivers = score_exposure(exposure, asset)
-        decision = decision_for_score(score)
-        prioritized.append(
-            PrioritizedExposure(
-                exposure_id=exposure.id,
-                asset_id=asset.id,
-                service_id=asset.service_id,
-                title=exposure.title,
-                description=exposure.description,
-                exposure_type=exposure.exposure_type,
-                severity=exposure.severity,
-                decision=decision,
-                ctem_score=score,
-                rationale=rationale_for(exposure, asset, decision, service_name),
-                why_it_matters=why_it_matters(exposure, asset, service_name),
-                next_action=exposure.suggested_action,
-                score_drivers=drivers,
-                validation_evidence=exposure.evidence,
-                owner=asset.owner,
-                sla=slas.get(exposure.id, "Not assigned"),
-                source=exposure.source,
-                source_reference=exposure.source_reference,
-                first_seen=exposure.first_seen,
-                last_seen=exposure.last_seen,
-                validated_at=exposure.validated_at,
-                evidence_owner=exposure.evidence_owner,
-                evidence_expires_at=exposure.evidence_expires_at,
-            )
-        )
-
-    return sorted(prioritized, key=lambda item: item.ctem_score, reverse=True)

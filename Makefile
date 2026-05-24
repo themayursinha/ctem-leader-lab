@@ -13,7 +13,7 @@ build:
 test: backend-test frontend-build
 
 backend-test:
-	cd backend && python3 -m pytest
+	cd backend && .venv/bin/python -m pytest
 
 frontend-build:
 	cd frontend && npm ci && npm run build

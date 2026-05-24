@@ -1,19 +1,27 @@
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ctem
+      POSTGRES_PASSWORD: ctem
+      POSTGRES_DB: ctem
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ctem"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build: ./backend
     environment:
-      - CTEM_DB_PATH=/data/ctem.db
-      - CORS_ORIGINS=http://localhost:8080
-      # Set CTEM_ADMIN_TOKEN in your shell or .env to require a token for mutating APIs.
+      - CTEM_DATABASE_URL=postgresql+psycopg2://ctem:ctem@db:5432/ctem
+      - CTEM_CORS_ORIGINS=http://localhost:8080
       - CTEM_ADMIN_TOKEN=${CTEM_ADMIN_TOKEN:-}
-    volumes:
-      - ctem-data:/data
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2)"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
@@ -22,8 +30,8 @@ services:
       - "8080:80"
     depends_on:
       backend:
-        condition: service_healthy
+        condition: service_started
     restart: unless-stopped
 
 volumes:
-  ctem-data:
+  pg-data:

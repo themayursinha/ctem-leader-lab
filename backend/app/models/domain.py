@@ -1,15 +1,24 @@
 from typing import Any, Literal, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
+
+class AppBaseModel(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
 
 Criticality = Literal["Low", "Medium", "High", "Critical"]
 Decision = Literal["Track", "Monitor", "Attend", "Act"]
 Effort = Literal["Low", "Medium", "High"]
 EvidenceConfidence = Literal["Low", "Medium", "High"]
+ExposureType = Literal["CVE", "Cloud", "Identity", "Secret", "SaaS", "Control Gap"]
+Reachability = Literal["Direct", "Indirect", "Isolated"]
+AttackPathStatus = Literal["Validated", "Plausible", "Blocked"]
+RemediationStatus = Literal["To Do", "In Progress", "Done", "Accepted Risk"]
+RetestStatus = Literal["Not Started", "Scheduled", "Passed", "Blocked"]
 
 
-class BusinessService(BaseModel):
+class BusinessService(AppBaseModel):
     id: str
     name: str
     description: str
@@ -24,7 +33,7 @@ class BusinessService(BaseModel):
     scope_reason: str
 
 
-class Asset(BaseModel):
+class Asset(AppBaseModel):
     id: str
     name: str
     type: str
@@ -34,15 +43,15 @@ class Asset(BaseModel):
     criticality: Criticality
     crown_jewel: bool
     internet_exposed: bool
-    reachable_from_internet: Literal["Direct", "Indirect", "Isolated"]
+    reachable_from_internet: Reachability
     tags: list[str]
 
 
-class Exposure(BaseModel):
+class Exposure(AppBaseModel):
     id: str
     title: str
     description: str
-    exposure_type: Literal["CVE", "Cloud", "Identity", "Secret", "SaaS", "Control Gap"]
+    exposure_type: ExposureType
     asset_id: str
     severity: Criticality
     cvss: Optional[float] = None
@@ -65,13 +74,13 @@ class Exposure(BaseModel):
     evidence_expires_at: Optional[str] = None
 
 
-class ScoreDriver(BaseModel):
+class ScoreDriver(AppBaseModel):
     name: str
     value: int
     explanation: str
 
 
-class PrioritizedExposure(BaseModel):
+class PrioritizedExposure(AppBaseModel):
     exposure_id: str
     asset_id: str
     service_id: str
@@ -97,7 +106,7 @@ class PrioritizedExposure(BaseModel):
     evidence_expires_at: Optional[str] = None
 
 
-class AttackPathStep(BaseModel):
+class AttackPathStep(AppBaseModel):
     order: int
     title: str
     asset_id: str
@@ -106,36 +115,36 @@ class AttackPathStep(BaseModel):
     control_gap: str
 
 
-class AttackPath(BaseModel):
+class AttackPath(AppBaseModel):
     id: str
     name: str
     objective: str
     business_service_id: str
     exposure_ids: list[str]
-    status: Literal["Validated", "Plausible", "Blocked"]
+    status: AttackPathStatus
     evidence_confidence: EvidenceConfidence
     blast_radius: str
     safe_validation_method: str
     steps: list[AttackPathStep]
 
 
-class RemediationAction(BaseModel):
+class RemediationAction(AppBaseModel):
     id: str
     exposure_id: str
     title: str
     owner: str
     team: str
-    status: Literal["To Do", "In Progress", "Done", "Accepted Risk"]
+    status: RemediationStatus
     priority: Decision
     sla: str
     due_in_days: int
     playbook: str
     dependency: str
-    retest_status: Literal["Not Started", "Scheduled", "Passed", "Blocked"]
+    retest_status: RetestStatus
     risk_acceptance_required: bool
 
 
-class MaturityDomain(BaseModel):
+class MaturityDomain(AppBaseModel):
     name: str
     score: int
     target: int
@@ -143,7 +152,7 @@ class MaturityDomain(BaseModel):
     next_step: str
 
 
-class ProgramSummary(BaseModel):
+class ProgramSummary(AppBaseModel):
     organization: str
     goal: str
     maturity_current: float
@@ -153,7 +162,7 @@ class ProgramSummary(BaseModel):
     cycle: list[dict[str, str]]
 
 
-class WorkshopArtifacts(BaseModel):
+class WorkshopArtifacts(AppBaseModel):
     maturity_assessment: list[str]
     crown_jewel_worksheet: list[str]
     prioritization_rationale: list[str]
@@ -162,7 +171,7 @@ class WorkshopArtifacts(BaseModel):
     roadmap_30_60_90: list[dict[str, str]]
 
 
-class AuditEvent(BaseModel):
+class AuditEvent(AppBaseModel):
     id: str
     created_at: str
     action: str
