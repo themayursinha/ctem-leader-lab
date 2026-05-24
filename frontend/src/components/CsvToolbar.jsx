@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
 import { Download, FileDown, Upload, RotateCcw } from 'lucide-react';
+
+import ConfirmDialog from './ConfirmDialog';
 import { useToast } from './Toast';
 
 const TEMPLATES = {
@@ -49,6 +51,7 @@ const CsvToolbar = ({
   const fileRef = useRef(null);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
   const addToast = useToast();
 
   const handleExport = async () => {
@@ -89,7 +92,7 @@ const CsvToolbar = ({
   };
 
   const handleReset = async () => {
-    if (!window.confirm('Reset all data to seed values? This cannot be undone.')) return;
+    setShowConfirm(false);
     setBusy(true);
     setStatus(null);
     try {
@@ -162,7 +165,7 @@ const CsvToolbar = ({
           <button
             className="tool-button"
             type="button"
-            onClick={handleReset}
+            onClick={() => setShowConfirm(true)}
             disabled={busy}
           >
             <RotateCcw size={16} />
@@ -173,6 +176,14 @@ const CsvToolbar = ({
 
       <StatusMessage status={status} />
       <ErrorDetails errors={status?.errors} />
+
+      {showConfirm && (
+        <ConfirmDialog
+          message="Reset all data to seed values? This cannot be undone."
+          onConfirm={handleReset}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
     </div>
   );
 };

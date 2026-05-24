@@ -42,7 +42,7 @@ const Prioritization = ({ DecisionBadge }) => {
       .catch(setError);
   }, []);
 
-  if (error) return <div className="notice-panel error">Unable to load prioritization data. {error.message}</div>;
+  if (error) return <div className="notice-panel error"><strong>Unable to load prioritization data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>;
   if (!risks.length) return <PrioritizationLoading />;
 
   const mediumSecret = risks.find((risk) => risk.exposure_id === 'exp-ci-token');

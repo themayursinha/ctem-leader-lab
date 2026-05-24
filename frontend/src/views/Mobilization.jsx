@@ -37,7 +37,7 @@ const Mobilization = ({ DecisionBadge }) => {
       .catch(setError);
   }, []);
 
-  if (error) return <div className="notice-panel error">Unable to load mobilization data. {error.message}</div>;
+  if (error) return <div className="notice-panel error"><strong>Unable to load mobilization data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>;
   if (!artifacts) return <MobilizationLoading />;
 
   const statuses = ['To Do', 'In Progress', 'Done', 'Accepted Risk'];
@@ -54,7 +54,7 @@ const Mobilization = ({ DecisionBadge }) => {
         </div>
       </section>
 
-      {api.isLiveMode() && (
+      {api.isLiveMode() ? (
         <CsvToolbar
           onExport={() => api.exportRemediationCsv()}
           onImport={(file) => api.importRemediationCsv(file)}
@@ -62,6 +62,8 @@ const Mobilization = ({ DecisionBadge }) => {
           label="Remediation"
           acceptReset
         />
+      ) : (
+        <div className="static-notice">CSV import, export, and reset require a live backend. Start the API server to unlock these features.</div>
       )}
 
       <section className="board">

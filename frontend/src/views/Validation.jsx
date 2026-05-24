@@ -36,7 +36,7 @@ const Validation = () => {
       .catch(setError);
   }, []);
 
-  if (error) return <div className="notice-panel error">Unable to load validation data. {error.message}</div>;
+  if (error) return <div className="notice-panel error"><strong>Unable to load validation data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>;
   if (!artifacts) return <ValidationLoading />;
 
   return (

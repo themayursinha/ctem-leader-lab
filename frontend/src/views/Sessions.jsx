@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Loader, Save, Trash2, Upload, FileText } from 'lucide-react';
 
 import { api } from '../api';
+import ConfirmDialog from '../components/ConfirmDialog';
 import Skeleton from '../components/Skeleton';
 import { useToast } from '../components/Toast';
 
@@ -12,6 +13,7 @@ const Sessions = () => {
   const [loading, setLoading] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [message, setMessage] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
   const addToast = useToast();
@@ -65,13 +67,15 @@ const Sessions = () => {
     }
   };
 
-  const handleDelete = async (sessionId, sessionName) => {
-    if (!window.confirm(`Delete session "${sessionName}"? This cannot be undone.`)) return;
-    setDeleting(sessionId);
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
+    const { id, name } = confirmDelete;
+    setConfirmDelete(null);
+    setDeleting(id);
     setMessage(null);
     try {
-      await api.deleteSession(sessionId);
-      addToast(`Session "${sessionName}" deleted.`, 'success');
+      await api.deleteSession(id);
+      addToast(`Session "${name}" deleted.`, 'success');
       setFetching(true);
       api.listSessions().then((data) => {
         setSessions(data);
@@ -196,7 +200,7 @@ const Sessions = () => {
                         <button
                           className="tool-button compact danger"
                           type="button"
-                          onClick={() => handleDelete(session.id, session.name)}
+                          onClick={() => setConfirmDelete({ id: session.id, name: session.name })}
                           disabled={deleting === session.id}
                         >
                           <Trash2 size={14} />
@@ -227,6 +231,14 @@ const Sessions = () => {
         <div className={`session-message ${message.type}`}>
           {message.text}
         </div>
+      )}
+
+      {confirmDelete && (
+        <ConfirmDialog
+          message={`Delete session "${confirmDelete.name}"? This cannot be undone.`}
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDelete(null)}
+        />
       )}
     </div>
   );

@@ -88,7 +88,7 @@ const Discovery = () => {
     return acc;
   }, {});
 
-  if (error) return <div className="notice-panel error">Unable to load discovery data. {error.message}</div>;
+  if (error) return <div className="notice-panel error"><strong>Unable to load discovery data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>;
   if (!exposures.length) return <DiscoveryLoading />;
 
   const sortIcon = (columnKey) => {
@@ -108,12 +108,14 @@ const Discovery = () => {
         </div>
       </section>
 
-      {api.isLiveMode() && (
+      {api.isLiveMode() ? (
         <CsvToolbar
           onExport={() => api.exportExposuresCsv()}
           onImport={(file) => api.importExposuresCsv(file)}
           label="Exposures"
         />
+      ) : (
+        <div className="static-notice">CSV import and export require a live backend. Start the API server to unlock these features.</div>
       )}
 
       <section className="metric-grid">

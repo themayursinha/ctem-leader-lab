@@ -1422,6 +1422,90 @@ dd {
   padding: 8px 0;
 }
 
+/* ── Error Detail ── */
+.error-detail {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ── Error Boundary ── */
+.error-boundary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 320px;
+  padding: 40px;
+  text-align: center;
+}
+
+.error-boundary svg {
+  color: var(--red);
+}
+
+.error-boundary h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.error-boundary p {
+  margin: 0;
+  color: var(--soft);
+}
+
+/* ── Static Mode Notice ── */
+.static-notice {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* ── Confirm Dialog ── */
+.confirm-dialog {
+  width: min(400px, 100%);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 24px;
+  text-align: center;
+}
+
+.confirm-icon {
+  color: var(--amber);
+  margin-bottom: 12px;
+}
+
+.confirm-message {
+  margin: 0 0 20px;
+  color: var(--soft);
+  line-height: 1.55;
+  font-size: 0.95rem;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.confirm-actions .tool-button {
+  min-width: 100px;
+}
+
+.confirm-danger {
+  border-color: rgba(248, 113, 113, 0.45) !important;
+  color: var(--red) !important;
+}
+
+.confirm-danger:hover {
+  background: rgba(248, 113, 113, 0.12) !important;
+}
+
 @media print {
   body {
     background: #fff;

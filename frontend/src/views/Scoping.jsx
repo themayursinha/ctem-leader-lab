@@ -76,7 +76,7 @@ const Scoping = () => {
     }
   };
 
-  if (error) return <div className="notice-panel error">Unable to load scoping data. {error.message}</div>;
+  if (error) return <div className="notice-panel error"><strong>Unable to load scoping data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>;
   if (!artifacts) return <ScopingLoading />;
 
   const sortIcon = (columnKey) => {
@@ -96,12 +96,14 @@ const Scoping = () => {
         </div>
       </section>
 
-      {api.isLiveMode() && (
+      {api.isLiveMode() ? (
         <CsvToolbar
           onExport={() => api.exportAssetsCsv()}
           onImport={(file) => api.importAssetsCsv(file)}
           label="Assets"
         />
+      ) : (
+        <div className="static-notice">CSV import and export require a live backend. Start the API server to unlock these features.</div>
       )}
 
       <section className="service-grid">

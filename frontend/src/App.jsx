@@ -16,6 +16,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveCont
 
 import { api } from './api';
 import Breadcrumbs from './components/Breadcrumbs';
+import ErrorBoundary from './components/ErrorBoundary';
 import Skeleton from './components/Skeleton';
 import { ToastProvider } from './components/Toast';
 import Discovery from './views/Discovery';
@@ -31,7 +32,10 @@ const WELCOME_KEY = 'ctem-welcome-dismissed';
 const BANNER_KEY = 'ctem-demo-banner-dismissed';
 
 const ErrorState = ({ error }) => (
-  <div className="notice-panel error">Unable to load CTEM data. {error.message}</div>
+  <div className="notice-panel error">
+    <strong>Unable to load data.</strong> The backend may not be running or there may be a connection issue.
+    <div className="error-detail">{error.message}</div>
+  </div>
 );
 
 const DecisionBadge = ({ value }) => (
@@ -276,18 +280,20 @@ const AppContent = () => {
       <main className="main-content">
         <DemoBanner />
         <Breadcrumbs pathname={location.pathname} />
-        <WelcomeModal />
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/scoping" element={<Scoping />} />
-          <Route path="/discovery" element={<Discovery />} />
-          <Route path="/prioritization" element={<Prioritization DecisionBadge={DecisionBadge} />} />
-          <Route path="/validation" element={<Validation />} />
-          <Route path="/mobilization" element={<Mobilization DecisionBadge={DecisionBadge} />} />
-          <Route path="/workshop-pack" element={<WorkshopPack />} />
-          <Route path="/sessions" element={<Sessions />} />
-          <Route path="/guide" element={<Guide />} />
-        </Routes>
+          <WelcomeModal />
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/scoping" element={<Scoping />} />
+              <Route path="/discovery" element={<Discovery />} />
+              <Route path="/prioritization" element={<Prioritization DecisionBadge={DecisionBadge} />} />
+              <Route path="/validation" element={<Validation />} />
+              <Route path="/mobilization" element={<Mobilization DecisionBadge={DecisionBadge} />} />
+              <Route path="/workshop-pack" element={<WorkshopPack />} />
+              <Route path="/sessions" element={<Sessions />} />
+              <Route path="/guide" element={<Guide />} />
+            </Routes>
+          </ErrorBoundary>
       </main>
     </div>
   );
