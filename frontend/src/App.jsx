@@ -12,8 +12,12 @@ import {
   ShieldAlert,
   Workflow,
 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 import { api } from './api';
+import Breadcrumbs from './components/Breadcrumbs';
+import Skeleton from './components/Skeleton';
+import { ToastProvider } from './components/Toast';
 import Discovery from './views/Discovery';
 import Guide from './views/Guide';
 import Mobilization from './views/Mobilization';
@@ -25,10 +29,6 @@ import WorkshopPack from './views/WorkshopPack';
 
 const WELCOME_KEY = 'ctem-welcome-dismissed';
 const BANNER_KEY = 'ctem-demo-banner-dismissed';
-
-const LoadingState = ({ label = 'Loading CTEM data...' }) => (
-  <div className="notice-panel">{label}</div>
-);
 
 const ErrorState = ({ error }) => (
   <div className="notice-panel error">Unable to load CTEM data. {error.message}</div>
@@ -96,6 +96,26 @@ const DemoBanner = () => {
   );
 };
 
+const DashboardLoading = () => (
+  <div className="page-stack">
+    <section className="page-header">
+      <div>
+        <Skeleton width="100px" height="0.75rem" />
+        <Skeleton width="280px" height="2rem" margin="8px 0 0" />
+        <Skeleton width="100%" height="1rem" margin="12px 0 0" />
+      </div>
+    </section>
+    <section className="metric-grid">
+      {[1, 2, 3, 4].map((i) => (
+        <div className="metric-card" key={i}>
+          <Skeleton width="80px" height="0.85rem" />
+          <Skeleton width="60px" height="1.8rem" margin="8px 0 0" />
+        </div>
+      ))}
+    </section>
+  </div>
+);
+
 const Dashboard = () => {
   const [summary, setSummary] = useState(null);
   const [maturity, setMaturity] = useState([]);
@@ -111,7 +131,7 @@ const Dashboard = () => {
   }, []);
 
   if (error) return <ErrorState error={error} />;
-  if (!summary) return <LoadingState label="Loading CTEM operating model..." />;
+  if (!summary) return <DashboardLoading />;
 
   const metricCards = [
     ['Scoped services', summary.metrics.scoped_services],
@@ -119,6 +139,8 @@ const Dashboard = () => {
     ['Act decisions', summary.metrics.act_decisions],
     ['Validated paths', summary.metrics.validated_attack_paths],
   ];
+
+  const chartData = maturity.map((d) => ({ name: d.name.split(' ')[0], score: d.score }));
 
   return (
     <div className="page-stack">
@@ -169,6 +191,19 @@ const Dashboard = () => {
               Current average {summary.maturity_current}/5, target {summary.maturity_target}/5.
             </p>
           </div>
+          <div className="maturity-chart">
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: -10 }}>
+                <XAxis dataKey="name" tick={{ fill: '#a8b0bd', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis domain={[0, 5]} ticks={[0, 1, 2, 3, 4, 5]} tick={{ fill: '#a8b0bd', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <RechartsTooltip
+                  contentStyle={{ background: '#20242b', border: '1px solid #353b45', borderRadius: 6, fontSize: 13 }}
+                  labelStyle={{ color: '#f4f6f8' }}
+                />
+                <Bar dataKey="score" fill="#22d3ee" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
           <div className="maturity-stack">
             {maturity.map((domain) => (
               <div className="maturity-row" key={domain.name}>
@@ -212,47 +247,58 @@ const SidebarItem = ({ to, icon: Icon, label }) => {
   );
 };
 
+const AppContent = () => {
+  const location = useLocation();
+
+  return (
+    <div className="app-container">
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <h1><ShieldAlert size={22} /> CTEM Leader Lab</h1>
+          <p>Exposure reduction workbench</p>
+        </div>
+        <nav className="sidebar-nav">
+          <SidebarItem to="/" icon={LayoutDashboard} label="Dashboard" />
+          <div className="nav-section-label">CTEM Stages</div>
+          <SidebarItem to="/scoping" icon={Crosshair} label="1. Scoping" />
+          <SidebarItem to="/discovery" icon={Search} label="2. Discovery" />
+          <SidebarItem to="/prioritization" icon={ListOrdered} label="3. Prioritization" />
+          <SidebarItem to="/validation" icon={Activity} label="4. Validation" />
+          <SidebarItem to="/mobilization" icon={Workflow} label="5. Mobilization" />
+          <div className="nav-section-label">Takeaway</div>
+          <SidebarItem to="/workshop-pack" icon={ClipboardList} label="Workshop Pack" />
+          <div className="nav-section-label">Workspace</div>
+          <SidebarItem to="/sessions" icon={Bookmark} label="Sessions" />
+          <div className="nav-section-label">Reference</div>
+          <SidebarItem to="/guide" icon={Book} label="User Guide" />
+        </nav>
+      </aside>
+      <main className="main-content">
+        <DemoBanner />
+        <Breadcrumbs pathname={location.pathname} />
+        <WelcomeModal />
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/scoping" element={<Scoping />} />
+          <Route path="/discovery" element={<Discovery />} />
+          <Route path="/prioritization" element={<Prioritization DecisionBadge={DecisionBadge} />} />
+          <Route path="/validation" element={<Validation />} />
+          <Route path="/mobilization" element={<Mobilization DecisionBadge={DecisionBadge} />} />
+          <Route path="/workshop-pack" element={<WorkshopPack />} />
+          <Route path="/sessions" element={<Sessions />} />
+          <Route path="/guide" element={<Guide />} />
+        </Routes>
+      </main>
+    </div>
+  );
+};
+
 function App() {
   return (
     <Router>
-      <div className="app-container">
-        <aside className="sidebar">
-          <div className="sidebar-header">
-            <h1><ShieldAlert size={22} /> CTEM Leader Lab</h1>
-            <p>Exposure reduction workbench</p>
-          </div>
-          <nav className="sidebar-nav">
-            <SidebarItem to="/" icon={LayoutDashboard} label="Dashboard" />
-            <div className="nav-section-label">CTEM Stages</div>
-            <SidebarItem to="/scoping" icon={Crosshair} label="1. Scoping" />
-            <SidebarItem to="/discovery" icon={Search} label="2. Discovery" />
-            <SidebarItem to="/prioritization" icon={ListOrdered} label="3. Prioritization" />
-            <SidebarItem to="/validation" icon={Activity} label="4. Validation" />
-            <SidebarItem to="/mobilization" icon={Workflow} label="5. Mobilization" />
-            <div className="nav-section-label">Takeaway</div>
-            <SidebarItem to="/workshop-pack" icon={ClipboardList} label="Workshop Pack" />
-            <div className="nav-section-label">Workspace</div>
-            <SidebarItem to="/sessions" icon={Bookmark} label="Sessions" />
-            <div className="nav-section-label">Reference</div>
-            <SidebarItem to="/guide" icon={Book} label="User Guide" />
-          </nav>
-        </aside>
-        <main className="main-content">
-          <DemoBanner />
-          <WelcomeModal />
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/scoping" element={<Scoping />} />
-            <Route path="/discovery" element={<Discovery />} />
-            <Route path="/prioritization" element={<Prioritization DecisionBadge={DecisionBadge} />} />
-            <Route path="/validation" element={<Validation />} />
-            <Route path="/mobilization" element={<Mobilization DecisionBadge={DecisionBadge} />} />
-            <Route path="/workshop-pack" element={<WorkshopPack />} />
-            <Route path="/sessions" element={<Sessions />} />
-            <Route path="/guide" element={<Guide />} />
-          </Routes>
-        </main>
-      </div>
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </Router>
   );
 }

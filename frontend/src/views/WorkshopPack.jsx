@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Check, Clipboard, Download, Printer } from 'lucide-react';
 
 import { api } from '../api';
+import Skeleton from '../components/Skeleton';
+import { useToast } from '../components/Toast';
 
 const buildMarkdown = ({ summary, artifacts, prioritized, actions }) => {
   const actItems = prioritized.filter((item) => item.decision === 'Act');
@@ -67,10 +69,29 @@ const ChecklistSection = ({ title, kicker, items }) => (
   </section>
 );
 
+const WorkshopPackLoading = () => (
+  <div className="page-stack">
+    <section className="page-header">
+      <Skeleton width="80px" height="0.75rem" />
+      <Skeleton width="240px" height="2rem" margin="4px 0 0" />
+      <Skeleton width="100%" height="1rem" margin="12px 0 0" />
+    </section>
+    <section className="metric-grid">
+      {[1, 2, 3].map((i) => (
+        <div className="metric-card compact" key={i}>
+          <Skeleton width="70px" height="0.85rem" />
+          <Skeleton width="120px" height="1.05rem" margin="8px 0 0" />
+        </div>
+      ))}
+    </section>
+  </div>
+);
+
 const WorkshopPack = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [copyState, setCopyState] = useState('idle');
+  const addToast = useToast();
 
   useEffect(() => {
     Promise.all([
@@ -104,9 +125,11 @@ const WorkshopPack = () => {
     try {
       await navigator.clipboard.writeText(markdown);
       setCopyState('copied');
+      addToast('Workshop pack copied to clipboard', 'success');
       window.setTimeout(() => setCopyState('idle'), 1800);
     } catch {
       setCopyState('failed');
+      addToast('Failed to copy workshop pack', 'error');
       window.setTimeout(() => setCopyState('idle'), 2200);
     }
   };
@@ -120,10 +143,11 @@ const WorkshopPack = () => {
     link.download = 'ctem-workshop-pack.json';
     link.click();
     URL.revokeObjectURL(url);
+    addToast('Workshop pack downloaded', 'success');
   };
 
   if (error) return <div className="notice-panel error">Unable to load workshop pack. {error.message}</div>;
-  if (!data) return <div className="notice-panel">Preparing workshop pack...</div>;
+  if (!data) return <WorkshopPackLoading />;
 
   const { summary, artifacts, prioritized, actions } = data;
   const actItems = prioritized.filter((item) => item.decision === 'Act').slice(0, 4);

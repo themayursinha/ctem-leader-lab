@@ -1,6 +1,26 @@
 import { useEffect, useState } from 'react';
 
 import { api } from '../api';
+import Skeleton from '../components/Skeleton';
+
+const ValidationLoading = () => (
+  <div className="page-stack">
+    <section className="page-header">
+      <Skeleton width="80px" height="0.75rem" />
+      <Skeleton width="200px" height="2rem" margin="4px 0 0" />
+      <Skeleton width="100%" height="1rem" margin="12px 0 0" />
+    </section>
+    <section className="path-stack">
+      {[1, 2].map((i) => (
+        <div className="path-card" key={i}>
+          <Skeleton width="60%" height="1.1rem" />
+          <Skeleton width="80%" height="0.85rem" margin="8px 0 0" />
+          <Skeleton width="100%" height="6rem" margin="16px 0 0" />
+        </div>
+      ))}
+    </section>
+  </div>
+);
 
 const Validation = () => {
   const [paths, setPaths] = useState([]);
@@ -17,7 +37,7 @@ const Validation = () => {
   }, []);
 
   if (error) return <div className="notice-panel error">Unable to load validation data. {error.message}</div>;
-  if (!artifacts) return <div className="notice-panel">Loading validation evidence...</div>;
+  if (!artifacts) return <ValidationLoading />;
 
   return (
     <div className="page-stack">

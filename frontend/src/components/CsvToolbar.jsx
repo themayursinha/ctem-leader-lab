@@ -1,5 +1,12 @@
 import { useRef, useState } from 'react';
-import { Download, Upload, RotateCcw } from 'lucide-react';
+import { Download, FileDown, Upload, RotateCcw } from 'lucide-react';
+import { useToast } from './Toast';
+
+const TEMPLATES = {
+  Assets: ['name', 'type', 'service_id', 'owner', 'crown_jewel', 'reachable_from_internet'],
+  Exposures: ['title', 'description', 'exposure_type', 'asset_id', 'severity', 'epss_probability', 'kev_signal', 'evidence_confidence'],
+  Remediation: ['title', 'playbook', 'owner', 'sla', 'status', 'priority', 'risk_acceptance_required'],
+};
 
 const StatusMessage = ({ status }) => {
   if (!status) return null;
@@ -42,14 +49,17 @@ const CsvToolbar = ({
   const fileRef = useRef(null);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState(null);
+  const addToast = useToast();
 
   const handleExport = async () => {
     setBusy(true);
     setStatus(null);
     try {
       await onExport();
+      addToast(`${label} exported successfully`, 'success');
     } catch (err) {
       setStatus({ type: 'error', message: err.message });
+      addToast(`Export failed: ${err.message}`, 'error');
     } finally {
       setBusy(false);
     }
@@ -64,11 +74,14 @@ const CsvToolbar = ({
       const result = await onImport(file);
       if (result.errors?.length > 0) {
         setStatus({ type: 'error', errors: result.errors });
+        addToast(`Import completed with ${result.errors.length} error(s)`, 'error');
       } else {
         setStatus({ type: 'success', imported: result.imported });
+        addToast(`Imported ${result.imported} row(s)`, 'success');
       }
     } catch (err) {
       setStatus({ type: 'error', message: err.message });
+      addToast(`Import failed: ${err.message}`, 'error');
     } finally {
       setBusy(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -81,12 +94,29 @@ const CsvToolbar = ({
     setStatus(null);
     try {
       await onReset();
+      addToast('Data reset to seed values', 'success');
       window.location.reload();
     } catch (err) {
       setStatus({ type: 'error', message: err.message });
+      addToast(`Reset failed: ${err.message}`, 'error');
     } finally {
       setBusy(false);
     }
+  };
+
+  const handleTemplate = () => {
+    const fields = TEMPLATES[label];
+    if (!fields) return;
+    const header = fields.join(',');
+    const bom = '\uFEFF';
+    const blob = new Blob([bom + header], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${label.toLowerCase()}-template.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    addToast('Template downloaded', 'success');
   };
 
   return (
@@ -118,6 +148,15 @@ const CsvToolbar = ({
           style={{ display: 'none' }}
           onChange={handleFileChange}
         />
+
+        <button
+          className="tool-button"
+          type="button"
+          onClick={handleTemplate}
+        >
+          <FileDown size={16} />
+          <span>Template</span>
+        </button>
 
         {acceptReset && (
           <button

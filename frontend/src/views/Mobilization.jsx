@@ -2,6 +2,26 @@ import { useEffect, useState } from 'react';
 
 import { api } from '../api';
 import CsvToolbar from '../components/CsvToolbar';
+import Skeleton from '../components/Skeleton';
+
+const MobilizationLoading = () => (
+  <div className="page-stack">
+    <section className="page-header">
+      <Skeleton width="80px" height="0.75rem" />
+      <Skeleton width="200px" height="2rem" margin="4px 0 0" />
+      <Skeleton width="100%" height="1rem" margin="12px 0 0" />
+    </section>
+    <section className="board">
+      {[1, 2, 3, 4].map((i) => (
+        <div className="board-column" key={i}>
+          <Skeleton width="80px" height="1.1rem" />
+          <Skeleton width="100%" height="6rem" margin="12px 0 0" />
+          <Skeleton width="100%" height="6rem" margin="8px 0 0" />
+        </div>
+      ))}
+    </section>
+  </div>
+);
 
 const Mobilization = ({ DecisionBadge }) => {
   const [actions, setActions] = useState([]);
@@ -18,7 +38,7 @@ const Mobilization = ({ DecisionBadge }) => {
   }, []);
 
   if (error) return <div className="notice-panel error">Unable to load mobilization data. {error.message}</div>;
-  if (!artifacts) return <div className="notice-panel">Loading mobilization board...</div>;
+  if (!artifacts) return <MobilizationLoading />;
 
   const statuses = ['To Do', 'In Progress', 'Done', 'Accepted Risk'];
 

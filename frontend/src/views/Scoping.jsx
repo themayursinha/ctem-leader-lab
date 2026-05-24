@@ -1,14 +1,39 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { api } from '../api';
 import CsvToolbar from '../components/CsvToolbar';
+import Skeleton from '../components/Skeleton';
+import TableSearch from '../components/TableSearch';
 import Tooltip from '../components/Tooltip';
+
+const ScopingLoading = () => (
+  <div className="page-stack">
+    <section className="page-header">
+      <Skeleton width="80px" height="0.75rem" />
+      <Skeleton width="200px" height="2rem" margin="4px 0 0" />
+      <Skeleton width="100%" height="1rem" margin="12px 0 0" />
+    </section>
+    <section className="service-grid">
+      {[1, 2, 3].map((i) => (
+        <div className="service-card" key={i}>
+          <Skeleton width="120px" height="0.85rem" />
+          <Skeleton width="160px" height="1.1rem" margin="8px 0 0" />
+          <Skeleton width="100%" height="0.85rem" margin="12px 0 0" />
+          <Skeleton width="100%" height="4rem" margin="12px 0 0" />
+        </div>
+      ))}
+    </section>
+  </div>
+);
 
 const Scoping = () => {
   const [services, setServices] = useState([]);
   const [assets, setAssets] = useState([]);
   const [artifacts, setArtifacts] = useState(null);
   const [error, setError] = useState(null);
+  const [search, setSearch] = useState('');
+  const [sortKey, setSortKey] = useState(null);
+  const [sortDir, setSortDir] = useState('asc');
 
   useEffect(() => {
     Promise.all([api.getBusinessServices(), api.getAssets(), api.getWorkshopArtifacts()])
@@ -20,10 +45,44 @@ const Scoping = () => {
       .catch(setError);
   }, []);
 
-  if (error) return <div className="notice-panel error">Unable to load scoping data. {error.message}</div>;
-  if (!artifacts) return <div className="notice-panel">Loading crown-jewel scope...</div>;
+  const assetsById = useMemo(() => Object.fromEntries(assets.map((asset) => [asset.id, asset])), [assets]);
+  const serviceMap = useMemo(() => Object.fromEntries(services.map((s) => [s.id, s.name])), [services]);
 
-  const assetsById = Object.fromEntries(assets.map((asset) => [asset.id, asset]));
+  const sorted = useMemo(() => {
+    if (!sortKey) return assets;
+    return [...assets].sort((a, b) => {
+      const aVal = String(a[sortKey] || '').toLowerCase();
+      const bVal = String(b[sortKey] || '').toLowerCase();
+      return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    });
+  }, [assets, sortKey, sortDir]);
+
+  const filtered = useMemo(() => {
+    if (!search) return sorted;
+    const q = search.toLowerCase();
+    return sorted.filter((asset) =>
+      asset.name.toLowerCase().includes(q) ||
+      asset.type.toLowerCase().includes(q) ||
+      asset.owner.toLowerCase().includes(q)
+    );
+  }, [sorted, search]);
+
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
+  };
+
+  if (error) return <div className="notice-panel error">Unable to load scoping data. {error.message}</div>;
+  if (!artifacts) return <ScopingLoading />;
+
+  const sortIcon = (columnKey) => {
+    if (sortKey !== columnKey) return <span className="sort-indicator">&#x2195;</span>;
+    return <span className="sort-indicator active">{sortDir === 'asc' ? '&#x2191;' : '&#x2193;'}</span>;
+  };
 
   return (
     <div className="page-stack">
@@ -97,22 +156,23 @@ const Scoping = () => {
           <h2>Scoped Asset Inventory</h2>
           <p>Assets are grouped by service so leaders can see ownership before remediation starts.</p>
         </div>
+        <TableSearch value={search} onChange={setSearch} placeholder="Search assets..." />
         <div className="table-wrap">
           <table className="data-table">
             <thead>
               <tr>
-                <th>Asset</th>
+                <th className="sortable" onClick={() => handleSort('name')}>Asset {sortIcon('name')}</th>
                 <th>Service</th>
-                <th>Owner</th>
+                <th className="sortable" onClick={() => handleSort('owner')}>Owner {sortIcon('owner')}</th>
                 <th>Exposure</th>
                 <th><Tooltip label="An asset so critical to the business that its compromise would cause significant operational or reputational harm">Crown jewel</Tooltip></th>
               </tr>
             </thead>
             <tbody>
-              {assets.map((asset) => (
-                <tr key={asset.id}>
+              {filtered.map((asset) => (
+                <tr key={asset.id} className="clickable-row">
                   <td><strong>{asset.name}</strong><span>{asset.type}</span></td>
-                  <td>{services.find((service) => service.id === asset.service_id)?.name}</td>
+                  <td>{serviceMap[asset.service_id]}</td>
                   <td>{asset.owner}</td>
                   <td><Tooltip label="Whether this asset is reachable from the public internet">{asset.reachable_from_internet}</Tooltip></td>
                   <td>{asset.crown_jewel ? 'Yes' : 'No'}</td>
@@ -121,6 +181,7 @@ const Scoping = () => {
             </tbody>
           </table>
         </div>
+        <p className="table-footer">{filtered.length} of {assets.length} assets</p>
       </section>
     </div>
   );

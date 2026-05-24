@@ -1,7 +1,36 @@
 import { useEffect, useState } from 'react';
 
 import { api } from '../api';
+import Skeleton from '../components/Skeleton';
 import Tooltip from '../components/Tooltip';
+
+const PrioritizationLoading = () => (
+  <div className="page-stack">
+    <section className="page-header">
+      <Skeleton width="80px" height="0.75rem" />
+      <Skeleton width="200px" height="2rem" margin="4px 0 0" />
+      <Skeleton width="100%" height="1rem" margin="12px 0 0" />
+    </section>
+    <section className="comparison-strip">
+      <Skeleton width="100%" height="4rem" />
+    </section>
+    <section className="risk-list">
+      {[1, 2, 3].map((i) => (
+        <div className="risk-card" key={i}>
+          <div className="risk-score">
+            <Skeleton width="48px" height="2rem" />
+            <Skeleton width="80px" height="0.78rem" margin="8px 0 0" />
+          </div>
+          <div className="risk-body">
+            <Skeleton width="80%" height="1rem" />
+            <Skeleton width="60%" height="0.85rem" margin="8px 0 0" />
+            <Skeleton width="100%" height="3rem" margin="16px 0 0" />
+          </div>
+        </div>
+      ))}
+    </section>
+  </div>
+);
 
 const Prioritization = ({ DecisionBadge }) => {
   const [risks, setRisks] = useState([]);
@@ -14,7 +43,7 @@ const Prioritization = ({ DecisionBadge }) => {
   }, []);
 
   if (error) return <div className="notice-panel error">Unable to load prioritization data. {error.message}</div>;
-  if (!risks.length) return <div className="notice-panel">Calculating CTEM decision outcomes...</div>;
+  if (!risks.length) return <PrioritizationLoading />;
 
   const mediumSecret = risks.find((risk) => risk.exposure_id === 'exp-ci-token');
   const isolatedCve = risks.find((risk) => risk.exposure_id === 'exp-dev-wiki-cve');

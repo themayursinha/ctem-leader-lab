@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Loader, Save, Trash2, Upload, FileText } from 'lucide-react';
 
 import { api } from '../api';
+import Skeleton from '../components/Skeleton';
+import { useToast } from '../components/Toast';
 
 const Sessions = () => {
   const [sessions, setSessions] = useState([]);
@@ -12,6 +14,7 @@ const Sessions = () => {
   const [message, setMessage] = useState(null);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
+  const addToast = useToast();
 
   useEffect(() => {
     api.listSessions().then((data) => {
@@ -31,7 +34,7 @@ const Sessions = () => {
     try {
       await api.saveSession(name);
       setSessionName('');
-      setMessage({ type: 'success', text: `Session "${name}" saved.` });
+      addToast(`Session "${name}" saved.`, 'success');
       setFetching(true);
       api.listSessions().then((data) => {
         setSessions(data);
@@ -42,6 +45,7 @@ const Sessions = () => {
       });
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
+      addToast(err.message, 'error');
     } finally {
       setSaving(false);
     }
@@ -52,10 +56,11 @@ const Sessions = () => {
     setMessage(null);
     try {
       await api.loadSession(sessionId);
-      setMessage({ type: 'success', text: `Session "${sessionName}" loaded. Refreshing...` });
+      addToast(`Session "${sessionName}" loaded. Refreshing...`, 'success');
       window.setTimeout(() => window.location.reload(), 800);
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
+      addToast(err.message, 'error');
       setLoading(null);
     }
   };
@@ -66,7 +71,7 @@ const Sessions = () => {
     setMessage(null);
     try {
       await api.deleteSession(sessionId);
-      setMessage({ type: 'success', text: `Session "${sessionName}" deleted.` });
+      addToast(`Session "${sessionName}" deleted.`, 'success');
       setFetching(true);
       api.listSessions().then((data) => {
         setSessions(data);
@@ -77,6 +82,7 @@ const Sessions = () => {
       });
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
+      addToast(err.message, 'error');
     } finally {
       setDeleting(null);
     }
@@ -94,8 +100,10 @@ const Sessions = () => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+      addToast('Executive summary downloaded', 'success');
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
+      addToast(err.message, 'error');
     }
   };
 
@@ -152,7 +160,7 @@ const Sessions = () => {
           <p>Click Load to restore a session. All current views will refresh.</p>
         </div>
         {fetching ? (
-          <div className="notice-panel">Loading sessions...</div>
+          <div className="notice-panel"><Skeleton width="100%" height="6rem" /></div>
         ) : error ? (
           <div className="notice-panel error">Unable to load sessions. {error.message}</div>
         ) : sessions.length === 0 ? (
