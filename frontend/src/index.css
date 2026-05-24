@@ -397,10 +397,47 @@ dd {
 }
 
 .chip-row,
-.risk-meta {
+.risk-meta,
+.tool-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.tool-row {
+  justify-content: flex-end;
+}
+
+.tool-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  gap: 8px;
+  font-weight: 800;
+}
+
+.tool-button:hover {
+  border-color: rgba(34, 211, 238, 0.6);
+  color: var(--cyan);
+}
+
+.tool-button.copied {
+  border-color: rgba(52, 211, 153, 0.55);
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green);
+}
+
+.tool-button.failed {
+  border-color: rgba(248, 113, 113, 0.55);
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--red);
 }
 
 .chip,
@@ -683,6 +720,81 @@ dd {
   color: var(--cyan);
 }
 
+.workshop-pack .metric-card.compact strong {
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.pack-section {
+  min-height: 100%;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.template-field,
+.pack-action {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+  padding: 14px;
+}
+
+.template-field span {
+  display: block;
+  color: var(--cyan);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.template-field p {
+  margin: 8px 0 0;
+  color: var(--soft);
+  line-height: 1.5;
+}
+
+.pack-action-list {
+  display: grid;
+  gap: 12px;
+}
+
+.pack-action {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 76px;
+  align-items: center;
+  gap: 14px;
+}
+
+.pack-action h3,
+.pack-action p {
+  margin: 0;
+}
+
+.pack-action h3 {
+  font-size: 1rem;
+}
+
+.pack-action p {
+  margin-top: 6px;
+  color: var(--soft);
+  line-height: 1.5;
+}
+
+.pack-action strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border-radius: 8px;
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--red);
+  font-size: 1.3rem;
+}
+
 .notice-panel {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -694,6 +806,47 @@ dd {
 .notice-panel.error {
   border-color: rgba(248, 113, 113, 0.5);
   color: var(--red);
+}
+
+.csv-toolbar {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 14px 18px;
+}
+
+.csv-toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.csv-status {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.csv-status.success {
+  color: var(--green);
+}
+
+.csv-status.error {
+  color: var(--red);
+}
+
+.csv-errors {
+  margin-top: 8px;
+}
+
+.csv-error-line {
+  margin: 4px 0;
+  font-size: 0.8rem;
+  color: var(--red);
+}
+
+.csv-error-line.muted {
+  color: var(--muted);
 }
 
 @media (max-width: 1100px) {
@@ -719,7 +872,8 @@ dd {
   }
 
   .split-grid,
-  .board {
+  .board,
+  .template-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -732,6 +886,15 @@ dd {
   .page-header,
   .card-header {
     flex-direction: column;
+  }
+
+  .tool-row {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .tool-button {
+    flex: 1 1 150px;
   }
 
   .page-title {
@@ -750,5 +913,50 @@ dd {
   .detail-list div,
   .mini-detail-list div {
     grid-template-columns: 1fr;
+  }
+
+  .pack-action {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  body {
+    background: #fff;
+    color: #111827;
+  }
+
+  .sidebar,
+  .tool-row {
+    display: none;
+  }
+
+  .app-container {
+    display: block;
+  }
+
+  .main-content {
+    padding: 0;
+  }
+
+  .content-section,
+  .metric-card,
+  .prompt-card,
+  .template-field,
+  .pack-action,
+  .roadmap-item {
+    break-inside: avoid;
+    border-color: #d1d5db;
+    background: #fff;
+    color: #111827;
+  }
+
+  .page-intro,
+  .prompt-card p,
+  .template-field p,
+  .pack-action p,
+  .roadmap-item p,
+  .data-table td {
+    color: #374151;
   }
 }

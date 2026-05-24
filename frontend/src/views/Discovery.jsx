@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { api } from '../api';
+import CsvToolbar from '../components/CsvToolbar';
 
 const Discovery = () => {
   const [exposures, setExposures] = useState([]);
@@ -42,6 +43,14 @@ const Discovery = () => {
           </p>
         </div>
       </section>
+
+      {api.isLiveMode() && (
+        <CsvToolbar
+          onExport={() => api.exportExposuresCsv()}
+          onImport={(file) => api.importExposuresCsv(file)}
+          label="Exposures"
+        />
+      )}
 
       <section className="metric-grid">
         {Object.entries(exposureTypes).map(([type, count]) => (

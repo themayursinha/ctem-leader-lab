@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { api } from '../api';
+import CsvToolbar from '../components/CsvToolbar';
 
 const Scoping = () => {
   const [services, setServices] = useState([]);
@@ -34,6 +35,14 @@ const Scoping = () => {
           </p>
         </div>
       </section>
+
+      {api.isLiveMode() && (
+        <CsvToolbar
+          onExport={() => api.exportAssetsCsv()}
+          onImport={(file) => api.importAssetsCsv(file)}
+          label="Assets"
+        />
+      )}
 
       <section className="service-grid">
         {services.map((service) => (

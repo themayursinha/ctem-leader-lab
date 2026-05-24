@@ -1,3 +1,6 @@
+import threading
+from copy import deepcopy
+
 from models import (
     Asset,
     AttackPath,
@@ -499,7 +502,7 @@ REMEDIATION_ACTIONS = [
 ]
 
 
-WORKSHOP_ARTIFACTS = WorkshopArtifacts(
+_SEED_WORKSHOP_ARTIFACTS = WorkshopArtifacts(
     maturity_assessment=[
         "Score each CTEM stage from 1-5 using current evidence, not aspiration.",
         "Name the highest-friction handoff between security, IT, engineering, and business owners.",
@@ -546,3 +549,52 @@ WORKSHOP_ARTIFACTS = WorkshopArtifacts(
         },
     ],
 )
+
+WORKSHOP_ARTIFACTS = deepcopy(_SEED_WORKSHOP_ARTIFACTS)
+
+
+class DataStore:
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._seed_business_services = list(BUSINESS_SERVICES)
+        self._seed_assets = list(ASSETS)
+        self._seed_exposures = list(EXPOSURES)
+        self._seed_attack_paths = list(ATTACK_PATHS)
+        self._seed_maturity = list(MATURITY)
+        self._seed_remediation_actions = list(REMEDIATION_ACTIONS)
+        self._seed_workshop_artifacts = deepcopy(_SEED_WORKSHOP_ARTIFACTS)
+
+    def replace_assets(self, new_assets):
+        with self._lock:
+            ASSETS.clear()
+            ASSETS.extend(new_assets)
+
+    def replace_exposures(self, new_exposures):
+        with self._lock:
+            EXPOSURES.clear()
+            EXPOSURES.extend(new_exposures)
+
+    def replace_remediation_actions(self, new_actions):
+        with self._lock:
+            REMEDIATION_ACTIONS.clear()
+            REMEDIATION_ACTIONS.extend(new_actions)
+
+    def reset(self):
+        with self._lock:
+            ASSETS.clear()
+            ASSETS.extend(deepcopy(self._seed_assets))
+            EXPOSURES.clear()
+            EXPOSURES.extend(deepcopy(self._seed_exposures))
+            REMEDIATION_ACTIONS.clear()
+            REMEDIATION_ACTIONS.extend(deepcopy(self._seed_remediation_actions))
+            BUSINESS_SERVICES.clear()
+            BUSINESS_SERVICES.extend(deepcopy(self._seed_business_services))
+            ATTACK_PATHS.clear()
+            ATTACK_PATHS.extend(deepcopy(self._seed_attack_paths))
+            MATURITY.clear()
+            MATURITY.extend(deepcopy(self._seed_maturity))
+            global WORKSHOP_ARTIFACTS
+            WORKSHOP_ARTIFACTS = deepcopy(self._seed_workshop_artifacts)
+
+
+DATA = DataStore()

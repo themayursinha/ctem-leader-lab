@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { api } from '../api';
+import CsvToolbar from '../components/CsvToolbar';
 
 const Mobilization = ({ DecisionBadge }) => {
   const [actions, setActions] = useState([]);
@@ -32,6 +33,16 @@ const Mobilization = ({ DecisionBadge }) => {
           </p>
         </div>
       </section>
+
+      {api.isLiveMode() && (
+        <CsvToolbar
+          onExport={() => api.exportRemediationCsv()}
+          onImport={(file) => api.importRemediationCsv(file)}
+          onReset={() => api.resetData()}
+          label="Remediation"
+          acceptReset
+        />
+      )}
 
       <section className="board">
         {statuses.map((status) => {

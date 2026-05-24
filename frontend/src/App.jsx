@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   Activity,
+  ClipboardList,
   Crosshair,
   LayoutDashboard,
   ListOrdered,
@@ -16,6 +17,7 @@ import Mobilization from './views/Mobilization';
 import Prioritization from './views/Prioritization';
 import Scoping from './views/Scoping';
 import Validation from './views/Validation';
+import WorkshopPack from './views/WorkshopPack';
 
 const LoadingState = ({ label = 'Loading CTEM data...' }) => (
   <div className="notice-panel">{label}</div>
@@ -147,7 +149,7 @@ const SidebarItem = ({ to, icon: Icon, label }) => {
 
 function App() {
   return (
-    <Router basename={import.meta.env.BASE_URL}>
+    <Router>
       <div className="app-container">
         <aside className="sidebar">
           <div className="sidebar-header">
@@ -162,6 +164,8 @@ function App() {
             <SidebarItem to="/prioritization" icon={ListOrdered} label="3. Prioritization" />
             <SidebarItem to="/validation" icon={Activity} label="4. Validation" />
             <SidebarItem to="/mobilization" icon={Workflow} label="5. Mobilization" />
+            <div className="nav-section-label">Takeaway</div>
+            <SidebarItem to="/workshop-pack" icon={ClipboardList} label="Workshop Pack" />
           </nav>
         </aside>
         <main className="main-content">
@@ -172,6 +176,7 @@ function App() {
             <Route path="/prioritization" element={<Prioritization DecisionBadge={DecisionBadge} />} />
             <Route path="/validation" element={<Validation />} />
             <Route path="/mobilization" element={<Mobilization DecisionBadge={DecisionBadge} />} />
+            <Route path="/workshop-pack" element={<WorkshopPack />} />
           </Routes>
         </main>
       </div>
