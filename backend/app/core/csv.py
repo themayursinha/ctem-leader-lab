@@ -2,7 +2,7 @@ import csv
 import io
 from typing import Any
 
-from fastapi import File, HTTPException, UploadFile, status
+from fastapi import HTTPException, UploadFile, status
 from fastapi.responses import StreamingResponse
 
 

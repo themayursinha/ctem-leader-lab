@@ -1,4 +1,4 @@
-from app.models.domain import Asset, Decision, Exposure, PrioritizedExposure, ScoreDriver
+from app.models.domain import Asset, Decision, Exposure, ScoreDriver
 
 
 CRITICALITY_POINTS = {"Low": 4, "Medium": 10, "High": 16, "Critical": 22}

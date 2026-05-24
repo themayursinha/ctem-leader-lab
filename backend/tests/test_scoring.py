@@ -2,8 +2,7 @@
 
 from fastapi.testclient import TestClient
 
-from app.models.domain import Asset, Exposure
-from app.core.scoring import score_exposure, decision_for_score
+from app.core.scoring import decision_for_score
 
 
 class TestScoringEngine:

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, File, UploadFile
 
-from app.core.csv import FIELD_TYPE_MAP, LIST_FIELDS, OPTIONAL_CSV_FIELDS, coerce_value, csv_response, model_to_csv_rows, parse_upload
+from app.core.csv import csv_response, model_to_csv_rows, parse_upload
 from app.core.security import require_admin_token
 from app.dependencies import get_data_service
 from app.models.domain import RemediationAction
