@@ -24,6 +24,9 @@ frontend-test:
 frontend-build:
 	cd frontend && npm ci && npm run build
 
+frontend-e2e:
+	cd frontend && npm run build && npm run test:e2e
+
 lint:
 	cd backend && .venv/bin/python -m ruff check app/ tests/
 	cd frontend && npx eslint src/
