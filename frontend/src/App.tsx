@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react'
+import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
   Activity,
   Book,
@@ -12,51 +13,60 @@ import {
   Search,
   ShieldAlert,
   Workflow,
-} from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+} from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts'
 
-import { api } from './api';
-import Breadcrumbs from './components/Breadcrumbs';
-import ErrorBoundary from './components/ErrorBoundary';
-import Skeleton from './components/Skeleton';
-import { ToastProvider } from './components/Toast';
-import Discovery from './views/Discovery';
-import Guide from './views/Guide';
-import Mobilization from './views/Mobilization';
-import Prioritization from './views/Prioritization';
-import Scoping from './views/Scoping';
-import Validation from './views/Validation';
-import Sessions from './views/Sessions';
-import WorkshopPack from './views/WorkshopPack';
+import { api } from './api'
+import Breadcrumbs from './components/Breadcrumbs'
+import ErrorBoundary from './components/ErrorBoundary'
+import Skeleton from './components/Skeleton'
+import { ToastProvider } from './components/Toast'
+import Discovery from './views/Discovery'
+import Guide from './views/Guide'
+import Mobilization from './views/Mobilization'
+import Prioritization from './views/Prioritization'
+import Scoping from './views/Scoping'
+import Validation from './views/Validation'
+import Sessions from './views/Sessions'
+import WorkshopPack from './views/WorkshopPack'
 
-const WELCOME_KEY = 'ctem-welcome-dismissed';
-const BANNER_KEY = 'ctem-demo-banner-dismissed';
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
 
-const ErrorState = ({ error }) => (
+const WELCOME_KEY = 'ctem-welcome-dismissed'
+const BANNER_KEY = 'ctem-demo-banner-dismissed'
+
+const ErrorState = ({ error }: { error: Error }) => (
   <div className="notice-panel error">
     <strong>Unable to load data.</strong> The backend may not be running or there may be a connection issue.
     <div className="error-detail">{error.message}</div>
   </div>
-);
+)
 
-const DecisionBadge = ({ value }) => (
+const DecisionBadge = ({ value }: { value: string }) => (
   <span className={`badge decision-${String(value).toLowerCase()}`}>{value}</span>
-);
+)
 
 const WelcomeModal = () => {
-  const [visible, setVisible] = useState(!localStorage.getItem(WELCOME_KEY));
-  const welcomeRef = useRef(null);
+  const [visible, setVisible] = useState(!localStorage.getItem(WELCOME_KEY))
+  const welcomeRef = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => {
-    if (visible) welcomeRef.current?.focus();
-  }, [visible]);
+    if (visible) welcomeRef.current?.focus()
+  }, [visible])
 
   const dismiss = () => {
-    localStorage.setItem(WELCOME_KEY, 'true');
-    setVisible(false);
-  };
+    localStorage.setItem(WELCOME_KEY, 'true')
+    setVisible(false)
+  }
 
-  if (!visible) return null;
+  if (!visible) return null
 
   return (
     <div className="modal-overlay" onClick={dismiss}>
@@ -85,26 +95,26 @@ const WelcomeModal = () => {
         <button className="tool-button modal-cta" onClick={dismiss}>Get started</button>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const DemoBanner = () => {
-  const [visible, setVisible] = useState(!localStorage.getItem(BANNER_KEY));
+  const [visible, setVisible] = useState(!localStorage.getItem(BANNER_KEY))
 
   const dismiss = () => {
-    localStorage.setItem(BANNER_KEY, 'true');
-    setVisible(false);
-  };
+    localStorage.setItem(BANNER_KEY, 'true')
+    setVisible(false)
+  }
 
-  if (!visible) return null;
+  if (!visible) return null
 
   return (
     <div className="demo-banner" role="alert">
       <span>This is a demo with fictional data. Use it to explore CTEM workflows — no real systems or data are connected.</span>
       <button className="demo-banner-close" onClick={dismiss} aria-label="Dismiss demo notice">&times;</button>
     </div>
-  );
-};
+  )
+}
 
 const DashboardLoading = () => (
   <div className="page-stack">
@@ -124,33 +134,35 @@ const DashboardLoading = () => (
       ))}
     </section>
   </div>
-);
+)
+
+import type { MaturityDomain, ProgramSummary } from './types/api'
 
 const Dashboard = () => {
-  const [summary, setSummary] = useState(null);
-  const [maturity, setMaturity] = useState([]);
-  const [error, setError] = useState(null);
+  const [summary, setSummary] = useState<ProgramSummary | null>(null)
+  const [maturity, setMaturity] = useState<MaturityDomain[]>([])
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     Promise.all([api.getProgramSummary(), api.getMaturity()])
       .then(([summaryData, maturityData]) => {
-        setSummary(summaryData);
-        setMaturity(maturityData);
+        setSummary(summaryData)
+        setMaturity(maturityData)
       })
-      .catch(setError);
-  }, []);
+      .catch(setError)
+  }, [])
 
-  if (error) return <ErrorState error={error} />;
-  if (!summary) return <DashboardLoading />;
+  if (error) return <ErrorState error={error} />
+  if (!summary) return <DashboardLoading />
 
-  const metricCards = [
+  const metricCards: [string, string | number][] = [
     ['Scoped services', summary.metrics.scoped_services],
     ['Crown-jewel assets', summary.metrics.crown_jewel_assets],
     ['Act decisions', summary.metrics.act_decisions],
     ['Validated paths', summary.metrics.validated_attack_paths],
-  ];
+  ]
 
-  const chartData = maturity.map((d) => ({ name: d.name.split(' ')[0], score: d.score }));
+  const chartData = maturity.map((d: MaturityDomain) => ({ name: d.name.split(' ')[0], score: d.score }))
 
   return (
     <div className="page-stack">
@@ -182,7 +194,7 @@ const Dashboard = () => {
             <p>Each CTEM stage answers a leadership question before the next handoff.</p>
           </div>
           <div className="cycle-list">
-            {summary.cycle.map((stage, index) => (
+            {summary.cycle.map((stage: { stage: string; leader_question: string }, index: number) => (
               <div className="cycle-item" key={stage.stage}>
                 <span className="cycle-index">{index + 1}</span>
                 <div>
@@ -215,7 +227,7 @@ const Dashboard = () => {
             </ResponsiveContainer>
           </div>
           <div className="maturity-stack">
-            {maturity.map((domain) => (
+            {maturity.map((domain: MaturityDomain) => (
               <div className="maturity-row" key={domain.name}>
                 <div className="maturity-label">
                   <span>{domain.name}</span>
@@ -237,41 +249,48 @@ const Dashboard = () => {
           <p>Use these as guardrails when moving away from vulnerability-management habits.</p>
         </div>
         <div className="principle-grid">
-          {summary.operating_principles.map((principle) => (
+          {summary.operating_principles.map((principle: string) => (
             <div className="principle-card" key={principle}>{principle}</div>
           ))}
         </div>
       </section>
     </div>
-  );
-};
+  )
+}
 
-const SidebarItem = ({ to, icon: Icon, label, onClick }) => {
-  const location = useLocation();
-  const isActive = location.pathname === to;
+interface SidebarItemProps {
+  to: string
+  icon: React.ElementType
+  label: string
+  onClick: () => void
+}
+
+const SidebarItem = ({ to, icon: Icon, label, onClick }: SidebarItemProps) => {
+  const location = useLocation()
+  const isActive = location.pathname === to
   return (
     <Link to={to} className={`nav-item ${isActive ? 'active' : ''}`} onClick={onClick} aria-current={isActive ? 'page' : undefined}>
       <Icon size={20} aria-hidden="true" />
       <span>{label}</span>
     </Link>
-  );
-};
+  )
+}
 
 const AppContent = () => {
-  const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const mainRef = useRef(null);
-  const menuRef = useRef(null);
+  const location = useLocation()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const mainRef = useRef<HTMLElement>(null)
+  const menuRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    mainRef.current?.focus();
-  }, [location.pathname]);
+    mainRef.current?.focus()
+  }, [location.pathname])
 
   useEffect(() => {
     if (sidebarOpen) {
-      menuRef.current?.focus();
+      menuRef.current?.focus()
     }
-  }, [sidebarOpen]);
+  }, [sidebarOpen])
 
   return (
     <div className="app-container">
@@ -332,17 +351,19 @@ const AppContent = () => {
         </ErrorBoundary>
       </main>
     </div>
-  );
-};
+  )
+}
 
 function App() {
   return (
-    <Router>
-      <ToastProvider>
-        <AppContent />
-      </ToastProvider>
-    </Router>
-  );
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <ToastProvider>
+          <AppContent />
+        </ToastProvider>
+      </Router>
+    </QueryClientProvider>
+  )
 }
 
-export default App;
+export default App
