@@ -1,12 +1,20 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Check, Clipboard, Download, Printer } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react'
+import { Check, Clipboard, Download, Printer } from 'lucide-react'
 
-import { api } from '../api';
-import Skeleton from '../components/Skeleton';
-import { useToast } from '../components/Toast';
+import { api } from '../api'
+import Skeleton from '../components/Skeleton'
+import { useToast } from '../components/Toast'
+import type { PrioritizedExposure, ProgramSummary, RemediationAction, WorkshopArtifacts } from '../types/api'
 
-const buildMarkdown = ({ summary, artifacts, prioritized, actions }) => {
-  const actItems = prioritized.filter((item) => item.decision === 'Act');
+interface WorkshopData {
+  summary: ProgramSummary
+  artifacts: WorkshopArtifacts
+  prioritized: PrioritizedExposure[]
+  actions: RemediationAction[]
+}
+
+const buildMarkdown = ({ summary, artifacts, prioritized, actions }: WorkshopData) => {
+  const actItems = prioritized.filter((item) => item.decision === 'Act')
 
   return [
     `# CTEM Workshop Pack: ${summary.organization}`,
@@ -42,17 +50,30 @@ const buildMarkdown = ({ summary, artifacts, prioritized, actions }) => {
     '## Current Remediation Board',
     ...actions.map((action) => `- ${action.id} (${action.priority}): ${action.title} - ${action.owner}, ${action.sla}`),
     '',
-  ].join('\n');
-};
+  ].join('\n')
+}
 
-const ActionButton = ({ children, icon: Icon, onClick, tone = 'default' }) => (
+interface ActionButtonProps {
+  children: React.ReactNode
+  icon: React.ElementType
+  onClick: () => void
+  tone?: string
+}
+
+const ActionButton = ({ children, icon: Icon, onClick, tone = 'default' }: ActionButtonProps) => (
   <button className={`tool-button ${tone}`} type="button" onClick={onClick}>
     <Icon size={18} />
     <span>{children}</span>
   </button>
-);
+)
 
-const ChecklistSection = ({ title, kicker, items }) => (
+interface ChecklistSectionProps {
+  title: string
+  kicker: string
+  items: string[]
+}
+
+const ChecklistSection = ({ title, kicker, items }: ChecklistSectionProps) => (
   <section className="content-section pack-section">
     <div className="section-heading">
       <p className="eyebrow">{kicker}</p>
@@ -67,7 +88,7 @@ const ChecklistSection = ({ title, kicker, items }) => (
       ))}
     </div>
   </section>
-);
+)
 
 const WorkshopPackLoading = () => (
   <div className="page-stack">
@@ -85,13 +106,13 @@ const WorkshopPackLoading = () => (
       ))}
     </section>
   </div>
-);
+)
 
 const WorkshopPack = () => {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
-  const [copyState, setCopyState] = useState('idle');
-  const addToast = useToast();
+  const [data, setData] = useState<WorkshopData | null>(null)
+  const [error, setError] = useState<Error | null>(null)
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle')
+  const addToast = useToast()
 
   useEffect(() => {
     Promise.all([
@@ -101,15 +122,15 @@ const WorkshopPack = () => {
       api.getRemediationActions(),
     ])
       .then(([summary, artifacts, prioritized, actions]) => {
-        setData({ summary, artifacts, prioritized, actions });
+        setData({ summary, artifacts, prioritized, actions })
       })
-      .catch(setError);
-  }, []);
+      .catch(setError)
+  }, [])
 
-  const markdown = useMemo(() => (data ? buildMarkdown(data) : ''), [data]);
+  const markdown = useMemo(() => (data ? buildMarkdown(data) : ''), [data])
 
   const packJson = useMemo(() => {
-    if (!data) return null;
+    if (!data) return null
     return {
       organization: data.summary.organization,
       goal: data.summary.goal,
@@ -117,40 +138,40 @@ const WorkshopPack = () => {
       workshop_artifacts: data.artifacts,
       act_decisions: data.prioritized.filter((item) => item.decision === 'Act'),
       remediation_board: data.actions,
-    };
-  }, [data]);
+    }
+  }, [data])
 
   const copyMarkdown = async () => {
-    if (!markdown) return;
+    if (!markdown) return
     try {
-      await navigator.clipboard.writeText(markdown);
-      setCopyState('copied');
-      addToast('Workshop pack copied to clipboard', 'success');
-      window.setTimeout(() => setCopyState('idle'), 1800);
+      await navigator.clipboard.writeText(markdown)
+      setCopyState('copied')
+      addToast('Workshop pack copied to clipboard', 'success')
+      window.setTimeout(() => setCopyState('idle'), 1800)
     } catch {
-      setCopyState('failed');
-      addToast('Failed to copy workshop pack', 'error');
-      window.setTimeout(() => setCopyState('idle'), 2200);
+      setCopyState('failed')
+      addToast('Failed to copy workshop pack', 'error')
+      window.setTimeout(() => setCopyState('idle'), 2200)
     }
-  };
+  }
 
   const downloadJson = () => {
-    if (!packJson) return;
-    const blob = new Blob([JSON.stringify(packJson, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'ctem-workshop-pack.json';
-    link.click();
-    URL.revokeObjectURL(url);
-    addToast('Workshop pack downloaded', 'success');
-  };
+    if (!packJson) return
+    const blob = new Blob([JSON.stringify(packJson, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'ctem-workshop-pack.json'
+    link.click()
+    URL.revokeObjectURL(url)
+    addToast('Workshop pack downloaded', 'success')
+  }
 
-  if (error) return <div className="notice-panel error">Unable to load workshop pack. {error.message}</div>;
-  if (!data) return <WorkshopPackLoading />;
+  if (error) return <div className="notice-panel error">Unable to load workshop pack. {error.message}</div>
+  if (!data) return <WorkshopPackLoading />
 
-  const { summary, artifacts, prioritized, actions } = data;
-  const actItems = prioritized.filter((item) => item.decision === 'Act').slice(0, 4);
+  const { summary, artifacts, prioritized, actions } = data
+  const actItems = prioritized.filter((item) => item.decision === 'Act').slice(0, 4)
 
   return (
     <div className="page-stack workshop-pack">
@@ -232,7 +253,7 @@ const WorkshopPack = () => {
         </div>
         <div className="pack-action-list">
           {actItems.map((item) => (
-            <article className="pack-action" key={item.id}>
+            <article className="pack-action" key={item.exposure_id}>
               <div>
                 <h3>{item.title}</h3>
                 <p>{item.next_action}</p>
@@ -302,7 +323,7 @@ const WorkshopPack = () => {
         </div>
       </section>
     </div>
-  );
-};
+  )
+}
 
-export default WorkshopPack;
+export default WorkshopPack

@@ -1,17 +1,23 @@
-import { useEffect, useRef } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { useEffect, useRef } from 'react'
+import { AlertTriangle } from 'lucide-react'
 
-const ConfirmDialog = ({ message, onConfirm, onCancel }) => {
-  const confirmRef = useRef(null);
+interface ConfirmDialogProps {
+  message: string
+  onConfirm: () => void
+  onCancel: () => void
+}
+
+const ConfirmDialog = ({ message, onConfirm, onCancel }: ConfirmDialogProps) => {
+  const confirmRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    confirmRef.current?.focus();
-  }, []);
+    confirmRef.current?.focus()
+  }, [])
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Escape') onCancel();
-    if (e.key === 'Enter') onConfirm();
-  };
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') onCancel()
+    if (e.key === 'Enter') onConfirm()
+  }
 
   return (
     <div className="modal-overlay" onClick={onCancel} onKeyDown={handleKeyDown}>
@@ -28,7 +34,7 @@ const ConfirmDialog = ({ message, onConfirm, onCancel }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ConfirmDialog;
+export default ConfirmDialog

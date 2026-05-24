@@ -1,17 +1,31 @@
-import { useRef, useState } from 'react';
-import { Download, FileDown, Upload, RotateCcw } from 'lucide-react';
+import { useRef, useState } from 'react'
+import { Download, FileDown, Upload, RotateCcw } from 'lucide-react'
 
-import ConfirmDialog from './ConfirmDialog';
-import { useToast } from './Toast';
+import ConfirmDialog from './ConfirmDialog'
+import { useToast } from './Toast'
+import type { ImportResult } from '../types/api'
 
-const TEMPLATES = {
+const TEMPLATES: Record<string, string[]> = {
   Assets: ['name', 'type', 'service_id', 'owner', 'crown_jewel', 'reachable_from_internet'],
   Exposures: ['title', 'description', 'exposure_type', 'asset_id', 'severity', 'epss_probability', 'kev_signal', 'evidence_confidence', 'source', 'source_reference', 'last_seen', 'validated_at'],
   Remediation: ['title', 'playbook', 'owner', 'sla', 'status', 'priority', 'risk_acceptance_required'],
-};
+}
 
-const StatusMessage = ({ status }) => {
-  if (!status) return null;
+type StatusType = 'success' | 'error'
+
+interface CsvStatus {
+  type: StatusType
+  imported?: number
+  errors?: ImportResult['errors']
+  message?: string
+}
+
+interface StatusMessageProps {
+  status: CsvStatus | null
+}
+
+const StatusMessage = ({ status }: StatusMessageProps) => {
+  if (!status) return null
   return (
     <p className={`csv-status ${status.type}`}>
       {status.type === 'success'
@@ -22,24 +36,36 @@ const StatusMessage = ({ status }) => {
             : status.message || 'Import failed.'
           : null}
     </p>
-  );
-};
+  )
+}
 
-const ErrorDetails = ({ errors }) => {
-  if (!errors || errors.length === 0) return null;
+interface ErrorDetailsProps {
+  errors: ImportResult['errors'] | undefined
+}
+
+const ErrorDetails = ({ errors }: ErrorDetailsProps) => {
+  if (!errors || errors.length === 0) return null
   return (
     <div className="csv-errors">
       {errors.slice(0, 10).map((err, i) => (
         <p key={i} className="csv-error-line">
-          Row {err.row}: <strong>{err.field}</strong> — {err.message}
+          Row {err.row}: <strong>{err.field}</strong> {'—'} {err.message}
         </p>
       ))}
       {errors.length > 10 && (
         <p className="csv-error-line muted">...and {errors.length - 10} more errors</p>
       )}
     </div>
-  );
-};
+  )
+}
+
+interface CsvToolbarProps {
+  onExport: () => Promise<void>
+  onImport: (file: File) => Promise<ImportResult>
+  onReset?: () => Promise<void>
+  label: string
+  acceptReset?: boolean
+}
 
 const CsvToolbar = ({
   onExport,
@@ -47,80 +73,80 @@ const CsvToolbar = ({
   onReset,
   label,
   acceptReset,
-}) => {
-  const fileRef = useRef(null);
-  const [busy, setBusy] = useState(false);
-  const [status, setStatus] = useState(null);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const addToast = useToast();
+}: CsvToolbarProps) => {
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [busy, setBusy] = useState(false)
+  const [status, setStatus] = useState<CsvStatus | null>(null)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const addToast = useToast()
 
   const handleExport = async () => {
-    setBusy(true);
-    setStatus(null);
+    setBusy(true)
+    setStatus(null)
     try {
-      await onExport();
-      addToast(`${label} exported successfully`, 'success');
+      await onExport()
+      addToast(`${label} exported successfully`, 'success')
     } catch (err) {
-      setStatus({ type: 'error', message: err.message });
-      addToast(`Export failed: ${err.message}`, 'error');
+      setStatus({ type: 'error', message: (err as Error).message })
+      addToast(`Export failed: ${(err as Error).message}`, 'error')
     } finally {
-      setBusy(false);
+      setBusy(false)
     }
-  };
+  }
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setBusy(true);
-    setStatus(null);
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setBusy(true)
+    setStatus(null)
     try {
-      const result = await onImport(file);
+      const result = await onImport(file)
       if (result.errors?.length > 0) {
-        setStatus({ type: 'error', errors: result.errors });
-        addToast(`Import completed with ${result.errors.length} error(s)`, 'error');
+        setStatus({ type: 'error', errors: result.errors })
+        addToast(`Import completed with ${result.errors.length} error(s)`, 'error')
       } else {
-        setStatus({ type: 'success', imported: result.imported });
-        addToast(`Imported ${result.imported} row(s)`, 'success');
+        setStatus({ type: 'success', imported: result.imported })
+        addToast(`Imported ${result.imported} row(s)`, 'success')
       }
     } catch (err) {
-      setStatus({ type: 'error', message: err.message });
-      addToast(`Import failed: ${err.message}`, 'error');
+      setStatus({ type: 'error', message: (err as Error).message })
+      addToast(`Import failed: ${(err as Error).message}`, 'error')
     } finally {
-      setBusy(false);
-      if (fileRef.current) fileRef.current.value = '';
+      setBusy(false)
+      if (fileRef.current) fileRef.current.value = ''
     }
-  };
+  }
 
   const handleReset = async () => {
-    setShowConfirm(false);
-    setBusy(true);
-    setStatus(null);
+    setShowConfirm(false)
+    setBusy(true)
+    setStatus(null)
     try {
-      await onReset();
-      addToast('Data reset to seed values', 'success');
-      window.location.reload();
+      if (onReset) await onReset()
+      addToast('Data reset to seed values', 'success')
+      window.location.reload()
     } catch (err) {
-      setStatus({ type: 'error', message: err.message });
-      addToast(`Reset failed: ${err.message}`, 'error');
+      setStatus({ type: 'error', message: (err as Error).message })
+      addToast(`Reset failed: ${(err as Error).message}`, 'error')
     } finally {
-      setBusy(false);
+      setBusy(false)
     }
-  };
+  }
 
   const handleTemplate = () => {
-    const fields = TEMPLATES[label];
-    if (!fields) return;
-    const header = fields.join(',');
-    const bom = '\uFEFF';
-    const blob = new Blob([bom + header], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${label.toLowerCase()}-template.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-    addToast('Template downloaded', 'success');
-  };
+    const fields = TEMPLATES[label]
+    if (!fields) return
+    const header = fields.join(',')
+    const bom = '\uFEFF'
+    const blob = new Blob([bom + header], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${label.toLowerCase()}-template.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+    addToast('Template downloaded', 'success')
+  }
 
   return (
     <div className="csv-toolbar">
@@ -189,7 +215,7 @@ const CsvToolbar = ({
         />
       )}
     </div>
-  );
-};
+  )
+}
 
-export default CsvToolbar;
+export default CsvToolbar

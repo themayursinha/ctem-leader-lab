@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react'
 
-import { api } from '../api';
-import CsvToolbar from '../components/CsvToolbar';
-import Skeleton from '../components/Skeleton';
-import TableSearch from '../components/TableSearch';
-import Tooltip from '../components/Tooltip';
+import { api } from '../api'
+import CsvToolbar from '../components/CsvToolbar'
+import Skeleton from '../components/Skeleton'
+import TableSearch from '../components/TableSearch'
+import Tooltip from '../components/Tooltip'
+import type { Asset, BusinessService, Exposure } from '../types/api'
 
 const DiscoveryLoading = () => (
   <div className="page-stack">
@@ -28,74 +29,74 @@ const DiscoveryLoading = () => (
       <Skeleton width="100%" height="16rem" margin="16px 0 0" />
     </section>
   </div>
-);
+)
 
 const Discovery = () => {
-  const [exposures, setExposures] = useState([]);
-  const [assets, setAssets] = useState([]);
-  const [services, setServices] = useState([]);
-  const [error, setError] = useState(null);
-  const [search, setSearch] = useState('');
-  const [sortKey, setSortKey] = useState(null);
-  const [sortDir, setSortDir] = useState('asc');
+  const [exposures, setExposures] = useState<Exposure[]>([])
+  const [assets, setAssets] = useState<Asset[]>([])
+  const [services, setServices] = useState<BusinessService[]>([])
+  const [error, setError] = useState<Error | null>(null)
+  const [search, setSearch] = useState('')
+  const [sortKey, setSortKey] = useState<string | null>(null)
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
 
   useEffect(() => {
     Promise.all([api.getExposures(), api.getAssets(), api.getBusinessServices()])
       .then(([exposureData, assetData, serviceData]) => {
-        setExposures(exposureData);
-        setAssets(assetData);
-        setServices(serviceData);
+        setExposures(exposureData)
+        setAssets(assetData)
+        setServices(serviceData)
       })
-      .catch(setError);
-  }, []);
+      .catch(setError)
+  }, [])
 
   const lookup = useMemo(() => ({
     assets: Object.fromEntries(assets.map((asset) => [asset.id, asset])),
     services: Object.fromEntries(services.map((service) => [service.id, service])),
-  }), [assets, services]);
+  }), [assets, services])
 
-  const handleSort = (key) => {
+  const handleSort = (key: string) => {
     if (sortKey === key) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
     } else {
-      setSortKey(key);
-      setSortDir('asc');
+      setSortKey(key)
+      setSortDir('asc')
     }
-  };
+  }
 
   const sorted = useMemo(() => {
-    if (!sortKey) return exposures;
+    if (!sortKey) return exposures
     return [...exposures].sort((a, b) => {
-      const aVal = String(a[sortKey] || '').toLowerCase();
-      const bVal = String(b[sortKey] || '').toLowerCase();
-      return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-    });
-  }, [exposures, sortKey, sortDir]);
+      const aVal = String((a as unknown as Record<string, unknown>)[sortKey] || '').toLowerCase()
+      const bVal = String((b as unknown as Record<string, unknown>)[sortKey] || '').toLowerCase()
+      return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal)
+    })
+  }, [exposures, sortKey, sortDir])
 
   const filtered = useMemo(() => {
-    if (!search) return sorted;
-    const q = search.toLowerCase();
+    if (!search) return sorted
+    const q = search.toLowerCase()
     return sorted.filter((exposure) =>
       exposure.title.toLowerCase().includes(q) ||
       exposure.description.toLowerCase().includes(q) ||
       exposure.exposure_type.toLowerCase().includes(q) ||
       exposure.severity.toLowerCase().includes(q) ||
       String(exposure.source || '').toLowerCase().includes(q)
-    );
-  }, [sorted, search]);
+    )
+  }, [sorted, search])
 
-  const exposureTypes = exposures.reduce((acc, exposure) => {
-    acc[exposure.exposure_type] = (acc[exposure.exposure_type] || 0) + 1;
-    return acc;
-  }, {});
+  const exposureTypes = exposures.reduce<Record<string, number>>((acc, exposure) => {
+    acc[exposure.exposure_type] = (acc[exposure.exposure_type] || 0) + 1
+    return acc
+  }, {})
 
-  if (error) return <div className="notice-panel error"><strong>Unable to load discovery data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>;
-  if (!exposures.length) return <DiscoveryLoading />;
+  if (error) return <div className="notice-panel error"><strong>Unable to load discovery data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>
+  if (!exposures.length) return <DiscoveryLoading />
 
-  const sortIcon = (columnKey) => {
-    if (sortKey !== columnKey) return <span className="sort-indicator">&#x2195;</span>;
-    return <span className="sort-indicator active">{sortDir === 'asc' ? '&#x2191;' : '&#x2193;'}</span>;
-  };
+  const sortIcon = (columnKey: string) => {
+    if (sortKey !== columnKey) return <span className="sort-indicator">&#x2195;</span>
+    return <span className="sort-indicator active">{sortDir === 'asc' ? '&#x2191;' : '&#x2193;'}</span>
+  }
 
   return (
     <div className="page-stack">
@@ -114,6 +115,7 @@ const Discovery = () => {
           onExport={() => api.exportExposuresCsv()}
           onImport={(file) => api.importExposuresCsv(file)}
           label="Exposures"
+          acceptReset={false}
         />
       ) : (
         <div className="static-notice">CSV import and export require a live backend. Start the API server to unlock these features.</div>
@@ -150,8 +152,8 @@ const Discovery = () => {
             </thead>
             <tbody>
               {filtered.map((exposure) => {
-                const asset = lookup.assets[exposure.asset_id];
-                const service = lookup.services[asset?.service_id];
+                const asset = lookup.assets[exposure.asset_id]
+                const service = lookup.services[asset?.service_id || '']
                 return (
                   <tr key={exposure.id} className="clickable-row">
                     <td><strong>{exposure.title}</strong><span>{exposure.description}</span></td>
@@ -174,7 +176,7 @@ const Discovery = () => {
                     <td><strong>{exposure.source || 'Seed data'}</strong><span>{exposure.source_reference}</span></td>
                     <td><strong>{exposure.evidence_confidence}</strong><span>Validated {exposure.validated_at || 'not recorded'}</span></td>
                   </tr>
-                );
+                )
               })}
             </tbody>
           </table>
@@ -195,7 +197,7 @@ const Discovery = () => {
         </div>
       </section>
     </div>
-  );
-};
+  )
+}
 
-export default Discovery;
+export default Discovery

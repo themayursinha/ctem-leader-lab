@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
+import type { ComponentType } from 'react'
 
-import { api } from '../api';
-import Skeleton from '../components/Skeleton';
-import Tooltip from '../components/Tooltip';
+import { api } from '../api'
+import Skeleton from '../components/Skeleton'
+import Tooltip from '../components/Tooltip'
+import type { PrioritizedExposure } from '../types/api'
 
 const PrioritizationLoading = () => (
   <div className="page-stack">
@@ -30,30 +32,34 @@ const PrioritizationLoading = () => (
       ))}
     </section>
   </div>
-);
+)
 
-const Prioritization = ({ DecisionBadge }) => {
-  const [risks, setRisks] = useState([]);
-  const [error, setError] = useState(null);
+interface PrioritizationProps {
+  DecisionBadge: ComponentType<{ value: string }>
+}
+
+const Prioritization = ({ DecisionBadge }: PrioritizationProps) => {
+  const [risks, setRisks] = useState<PrioritizedExposure[]>([])
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     api.getPrioritizedExposures()
       .then(setRisks)
-      .catch(setError);
-  }, []);
+      .catch(setError)
+  }, [])
 
-  if (error) return <div className="notice-panel error"><strong>Unable to load prioritization data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>;
-  if (!risks.length) return <PrioritizationLoading />;
+  if (error) return <div className="notice-panel error"><strong>Unable to load prioritization data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>
+  if (!risks.length) return <PrioritizationLoading />
 
-  const mediumSecret = risks.find((risk) => risk.exposure_id === 'exp-ci-token');
-  const isolatedCve = risks.find((risk) => risk.exposure_id === 'exp-dev-wiki-cve');
+  const mediumSecret = risks.find((risk) => risk.exposure_id === 'exp-ci-token')
+  const isolatedCve = risks.find((risk) => risk.exposure_id === 'exp-dev-wiki-cve')
 
-  const decisionTooltip = {
-    act: 'Immediate remediation required — active threat or critical business impact.',
-    attend: 'High priority — remediate in the current sprint cycle.',
-    monitor: 'Track closely — no immediate action but conditions may change.',
-    track: 'Low priority — accepted for now, re-evaluate in future cycles.',
-  };
+  const decisionTooltip: Record<string, string> = {
+    Act: 'Immediate remediation required — active threat or critical business impact.',
+    Attend: 'High priority — remediate in the current sprint cycle.',
+    Monitor: 'Track closely — no immediate action but conditions may change.',
+    Track: 'Low priority — accepted for now, re-evaluate in future cycles.',
+  }
 
   return (
     <div className="page-stack">
@@ -93,7 +99,7 @@ const Prioritization = ({ DecisionBadge }) => {
                   <h2>{risk.title}</h2>
                   <p>{risk.description}</p>
                 </div>
-                <Tooltip label={decisionTooltip[risk.decision.toLowerCase()] || ''}>
+                <Tooltip label={decisionTooltip[risk.decision] || ''}>
                   <DecisionBadge value={risk.decision} />
                 </Tooltip>
               </div>
@@ -125,7 +131,7 @@ const Prioritization = ({ DecisionBadge }) => {
         ))}
       </section>
     </div>
-  );
-};
+  )
+}
 
-export default Prioritization;
+export default Prioritization

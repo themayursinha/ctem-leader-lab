@@ -1,6 +1,12 @@
-import { Search as SearchIcon } from 'lucide-react';
+import { Search as SearchIcon } from 'lucide-react'
 
-const TableSearch = ({ value, onChange, placeholder = 'Search...' }) => (
+interface TableSearchProps {
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+}
+
+const TableSearch = ({ value, onChange, placeholder = 'Search...' }: TableSearchProps) => (
   <div className="table-search-wrap">
     <SearchIcon size={16} className="table-search-icon" />
     <input
@@ -12,6 +18,6 @@ const TableSearch = ({ value, onChange, placeholder = 'Search...' }) => (
       aria-label={placeholder}
     />
   </div>
-);
+)
 
-export default TableSearch;
+export default TableSearch

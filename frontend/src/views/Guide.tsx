@@ -1,6 +1,13 @@
-import { useState } from 'react';
+import type { ReactNode } from 'react'
+import { useState } from 'react'
 
-const guideSections = [
+interface GuideSection {
+  id: string
+  title: string
+  content: ReactNode
+}
+
+const guideSections: GuideSection[] = [
   {
     id: 'overview',
     title: 'Overview',
@@ -75,10 +82,10 @@ const guideSections = [
       </>
     ),
   },
-];
+]
 
 const Guide = () => {
-  const [activeSection, setActiveSection] = useState(guideSections[0].id);
+  const [activeSection, setActiveSection] = useState(guideSections[0].id)
 
   return (
     <div className="page-stack">
@@ -114,7 +121,7 @@ const Guide = () => {
         </section>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Guide;
+export default Guide

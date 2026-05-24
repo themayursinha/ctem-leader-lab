@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom'
+import { ChevronRight } from 'lucide-react'
 
-const stageMap = {
+const stageMap: Record<string, string> = {
   '/': 'Dashboard',
   '/scoping': 'Scoping',
   '/discovery': 'Discovery',
@@ -11,19 +11,23 @@ const stageMap = {
   '/workshop-pack': 'Workshop Pack',
   '/sessions': 'Sessions',
   '/guide': 'User Guide',
-};
+}
 
-const Breadcrumbs = ({ pathname }) => {
-  const crumbs = [];
+interface BreadcrumbsProps {
+  pathname: string
+}
+
+const Breadcrumbs = ({ pathname }: BreadcrumbsProps) => {
+  const crumbs: { label: string; to: string }[] = []
   if (pathname !== '/') {
-    crumbs.push({ label: 'Home', to: '/' });
+    crumbs.push({ label: 'Home', to: '/' })
   }
-  const label = stageMap[pathname];
+  const label = stageMap[pathname]
   if (label) {
-    crumbs.push({ label, to: pathname });
+    crumbs.push({ label, to: pathname })
   }
 
-  if (crumbs.length <= 1) return null;
+  if (crumbs.length <= 1) return null
 
   return (
     <nav className="breadcrumbs" aria-label="Breadcrumb">
@@ -38,7 +42,7 @@ const Breadcrumbs = ({ pathname }) => {
         </span>
       ))}
     </nav>
-  );
-};
+  )
+}
 
-export default Breadcrumbs;
+export default Breadcrumbs

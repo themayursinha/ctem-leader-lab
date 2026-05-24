@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
+import type { ComponentType } from 'react'
 
-import { api } from '../api';
-import CsvToolbar from '../components/CsvToolbar';
-import Skeleton from '../components/Skeleton';
+import { api } from '../api'
+import CsvToolbar from '../components/CsvToolbar'
+import Skeleton from '../components/Skeleton'
+import type { RemediationAction, WorkshopArtifacts } from '../types/api'
 
 const MobilizationLoading = () => (
   <div className="page-stack">
@@ -21,26 +23,30 @@ const MobilizationLoading = () => (
       ))}
     </section>
   </div>
-);
+)
 
-const Mobilization = ({ DecisionBadge }) => {
-  const [actions, setActions] = useState([]);
-  const [artifacts, setArtifacts] = useState(null);
-  const [error, setError] = useState(null);
+interface MobilizationProps {
+  DecisionBadge: ComponentType<{ value: string }>
+}
+
+const Mobilization = ({ DecisionBadge }: MobilizationProps) => {
+  const [actions, setActions] = useState<RemediationAction[]>([])
+  const [artifacts, setArtifacts] = useState<WorkshopArtifacts | null>(null)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     Promise.all([api.getRemediationActions(), api.getWorkshopArtifacts()])
       .then(([actionData, artifactData]) => {
-        setActions(actionData);
-        setArtifacts(artifactData);
+        setActions(actionData)
+        setArtifacts(artifactData)
       })
-      .catch(setError);
-  }, []);
+      .catch(setError)
+  }, [])
 
-  if (error) return <div className="notice-panel error"><strong>Unable to load mobilization data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>;
-  if (!artifacts) return <MobilizationLoading />;
+  if (error) return <div className="notice-panel error"><strong>Unable to load mobilization data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>
+  if (!artifacts) return <MobilizationLoading />
 
-  const statuses = ['To Do', 'In Progress', 'Done', 'Accepted Risk'];
+  const statuses = ['To Do', 'In Progress', 'Done', 'Accepted Risk']
 
   return (
     <div className="page-stack">
@@ -68,7 +74,7 @@ const Mobilization = ({ DecisionBadge }) => {
 
       <section className="board">
         {statuses.map((status) => {
-          const columnActions = actions.filter((action) => action.status === status);
+          const columnActions = actions.filter((action) => action.status === status)
           return (
             <div className="board-column" key={status}>
               <div className="column-header">
@@ -95,7 +101,7 @@ const Mobilization = ({ DecisionBadge }) => {
                 ))}
               </div>
             </div>
-          );
+          )
         })}
       </section>
 
@@ -142,7 +148,7 @@ const Mobilization = ({ DecisionBadge }) => {
         </div>
       </section>
     </div>
-  );
-};
+  )
+}
 
-export default Mobilization;
+export default Mobilization

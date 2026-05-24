@@ -1,134 +1,151 @@
-import { useEffect, useState } from 'react';
-import { History, KeyRound, Loader, Save, Trash2, Upload, FileText } from 'lucide-react';
+import { useEffect, useState } from 'react'
+import { History, KeyRound, Loader, Save, Trash2, Upload, FileText } from 'lucide-react'
 
-import { api } from '../api';
-import ConfirmDialog from '../components/ConfirmDialog';
-import Skeleton from '../components/Skeleton';
-import { useToast } from '../components/Toast';
+import { api } from '../api'
+import ConfirmDialog from '../components/ConfirmDialog'
+import Skeleton from '../components/Skeleton'
+import { useToast } from '../components/Toast'
+
+interface SessionInfo {
+  id: string
+  name: string
+  created_at: string
+  updated_at: string
+}
+
+interface AuditEvent {
+  id: string
+  created_at: string
+  action: string
+  resource_type: string
+  resource_id: string | null
+  summary: string
+}
+
+interface ConfirmDelete {
+  id: string
+  name: string
+}
+
+interface Message {
+  type: 'success' | 'error'
+  text: string
+}
 
 const Sessions = () => {
-  const [sessions, setSessions] = useState([]);
-  const [auditEvents, setAuditEvents] = useState([]);
-  const [adminToken, setAdminToken] = useState(api.getAdminToken());
-  const [sessionName, setSessionName] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [loading, setLoading] = useState(null);
-  const [deleting, setDeleting] = useState(null);
-  const [message, setMessage] = useState(null);
-  const [confirmDelete, setConfirmDelete] = useState(null);
-  const [fetching, setFetching] = useState(true);
-  const [auditError, setAuditError] = useState(null);
-  const [error, setError] = useState(null);
-  const addToast = useToast();
+  const [sessions, setSessions] = useState<SessionInfo[]>([])
+  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([])
+  const [adminToken, setAdminToken] = useState(api.getAdminToken())
+  const [sessionName, setSessionName] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState<string | null>(null)
+  const [message, setMessage] = useState<Message | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<ConfirmDelete | null>(null)
+  const [fetching, setFetching] = useState(true)
+  const [auditError, setAuditError] = useState<Error | null>(null)
+  const [error, setError] = useState<Error | null>(null)
+  const addToast = useToast()
 
   const refreshSessions = () => {
-    setFetching(true);
-    api.listSessions().then((data) => {
-      setSessions(data);
-      setFetching(false);
-    }).catch((err) => {
-      setError(err);
-      setFetching(false);
-    });
-  };
+    setFetching(true)
+    api.listSessions().then((data: SessionInfo[]) => {
+      setSessions(data)
+      setFetching(false)
+    }).catch(setError)
+  }
 
   const refreshAuditEvents = () => {
-    api.listAuditEvents(50).then(setAuditEvents).catch(setAuditError);
-  };
+    api.listAuditEvents(50).then(setAuditEvents).catch(setAuditError)
+  }
 
   useEffect(() => {
-    api.listSessions().then((data) => {
-      setSessions(data);
-      setFetching(false);
-    }).catch((err) => {
-      setError(err);
-      setFetching(false);
-    });
-    api.listAuditEvents(50).then(setAuditEvents).catch(setAuditError);
-  }, []);
+    refreshSessions()
+    refreshAuditEvents()
+  }, [])
 
-  const handleAdminTokenChange = (value) => {
-    setAdminToken(value);
-    api.setAdminToken(value);
-  };
+  const handleAdminTokenChange = (value: string) => {
+    setAdminToken(value)
+    api.setAdminToken(value)
+  }
 
   const handleSave = async () => {
-    const name = sessionName.trim();
-    if (!name) return;
-    setSaving(true);
-    setMessage(null);
+    const name = sessionName.trim()
+    if (!name) return
+    setSaving(true)
+    setMessage(null)
     try {
-      await api.saveSession(name);
-      setSessionName('');
-      addToast(`Session "${name}" saved.`, 'success');
-      refreshSessions();
-      refreshAuditEvents();
+      await api.saveSession(name)
+      setSessionName('')
+      addToast(`Session "${name}" saved.`, 'success')
+      refreshSessions()
+      refreshAuditEvents()
     } catch (err) {
-      setMessage({ type: 'error', text: err.message });
-      addToast(err.message, 'error');
+      setMessage({ type: 'error', text: (err as Error).message })
+      addToast((err as Error).message, 'error')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
-  const handleLoad = async (sessionId, sessionName) => {
-    setLoading(sessionId);
-    setMessage(null);
+  const handleLoad = async (sessionId: string, sessionName: string) => {
+    setLoading(sessionId)
+    setMessage(null)
     try {
-      await api.loadSession(sessionId);
-      addToast(`Session "${sessionName}" loaded. Refreshing...`, 'success');
-      window.setTimeout(() => window.location.reload(), 800);
+      await api.loadSession(sessionId)
+      addToast(`Session "${sessionName}" loaded. Refreshing...`, 'success')
+      window.setTimeout(() => window.location.reload(), 800)
     } catch (err) {
-      setMessage({ type: 'error', text: err.message });
-      addToast(err.message, 'error');
-      setLoading(null);
+      setMessage({ type: 'error', text: (err as Error).message })
+      addToast((err as Error).message, 'error')
+      setLoading(null)
     }
-  };
+  }
 
   const handleDelete = async () => {
-    if (!confirmDelete) return;
-    const { id, name } = confirmDelete;
-    setConfirmDelete(null);
-    setDeleting(id);
-    setMessage(null);
+    if (!confirmDelete) return
+    const { id, name } = confirmDelete
+    setConfirmDelete(null)
+    setDeleting(id)
+    setMessage(null)
     try {
-      await api.deleteSession(id);
-      addToast(`Session "${name}" deleted.`, 'success');
-      refreshSessions();
-      refreshAuditEvents();
+      await api.deleteSession(id)
+      addToast(`Session "${name}" deleted.`, 'success')
+      refreshSessions()
+      refreshAuditEvents()
     } catch (err) {
-      setMessage({ type: 'error', text: err.message });
-      addToast(err.message, 'error');
+      setMessage({ type: 'error', text: (err as Error).message })
+      addToast((err as Error).message, 'error')
     } finally {
-      setDeleting(null);
+      setDeleting(null)
     }
-  };
+  }
 
   const handleSummary = async () => {
-    setMessage(null);
+    setMessage(null)
     try {
-      const blob = await api.getExecutiveSummary('markdown');
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'ctem-executive-summary.md';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      addToast('Executive summary downloaded', 'success');
+      const blob = await api.getExecutiveSummary('markdown')
+      const url = URL.createObjectURL(blob as Blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'ctem-executive-summary.md'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      addToast('Executive summary downloaded', 'success')
     } catch (err) {
-      setMessage({ type: 'error', text: err.message });
-      addToast(err.message, 'error');
+      setMessage({ type: 'error', text: (err as Error).message })
+      addToast((err as Error).message, 'error')
     }
-  };
+  }
 
   if (!api.isLiveMode()) {
     return (
       <div className="notice-panel">
         Sessions are only available when connected to a live backend. Start the API server with <code>VITE_API_BASE_URL</code> set.
       </div>
-    );
+    )
   }
 
   return (
@@ -252,7 +269,6 @@ const Sessions = () => {
         )}
       </section>
 
-
       <section className="content-section">
         <div className="section-heading">
           <h2><History size={18} aria-hidden="true" /> Audit Events</h2>
@@ -313,7 +329,7 @@ const Sessions = () => {
         />
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Sessions;
+export default Sessions

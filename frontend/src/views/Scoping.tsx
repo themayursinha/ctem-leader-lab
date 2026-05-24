@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react'
 
-import { api } from '../api';
-import CsvToolbar from '../components/CsvToolbar';
-import Skeleton from '../components/Skeleton';
-import TableSearch from '../components/TableSearch';
-import Tooltip from '../components/Tooltip';
+import { api } from '../api'
+import CsvToolbar from '../components/CsvToolbar'
+import Skeleton from '../components/Skeleton'
+import TableSearch from '../components/TableSearch'
+import Tooltip from '../components/Tooltip'
+import type { Asset, BusinessService, WorkshopArtifacts } from '../types/api'
 
 const ScopingLoading = () => (
   <div className="page-stack">
@@ -24,65 +25,65 @@ const ScopingLoading = () => (
       ))}
     </section>
   </div>
-);
+)
 
 const Scoping = () => {
-  const [services, setServices] = useState([]);
-  const [assets, setAssets] = useState([]);
-  const [artifacts, setArtifacts] = useState(null);
-  const [error, setError] = useState(null);
-  const [search, setSearch] = useState('');
-  const [sortKey, setSortKey] = useState(null);
-  const [sortDir, setSortDir] = useState('asc');
+  const [services, setServices] = useState<BusinessService[]>([])
+  const [assets, setAssets] = useState<Asset[]>([])
+  const [artifacts, setArtifacts] = useState<WorkshopArtifacts | null>(null)
+  const [error, setError] = useState<Error | null>(null)
+  const [search, setSearch] = useState('')
+  const [sortKey, setSortKey] = useState<string | null>(null)
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
 
   useEffect(() => {
     Promise.all([api.getBusinessServices(), api.getAssets(), api.getWorkshopArtifacts()])
       .then(([serviceData, assetData, artifactData]) => {
-        setServices(serviceData);
-        setAssets(assetData);
-        setArtifacts(artifactData);
+        setServices(serviceData)
+        setAssets(assetData)
+        setArtifacts(artifactData)
       })
-      .catch(setError);
-  }, []);
+      .catch(setError)
+  }, [])
 
-  const assetsById = useMemo(() => Object.fromEntries(assets.map((asset) => [asset.id, asset])), [assets]);
-  const serviceMap = useMemo(() => Object.fromEntries(services.map((s) => [s.id, s.name])), [services]);
+  const assetsById = useMemo(() => Object.fromEntries(assets.map((asset) => [asset.id, asset])), [assets])
+  const serviceMap = useMemo(() => Object.fromEntries(services.map((s) => [s.id, s.name])), [services])
 
   const sorted = useMemo(() => {
-    if (!sortKey) return assets;
+    if (!sortKey) return assets
     return [...assets].sort((a, b) => {
-      const aVal = String(a[sortKey] || '').toLowerCase();
-      const bVal = String(b[sortKey] || '').toLowerCase();
-      return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-    });
-  }, [assets, sortKey, sortDir]);
+      const aVal = String((a as unknown as Record<string, unknown>)[sortKey] || '').toLowerCase()
+      const bVal = String((b as unknown as Record<string, unknown>)[sortKey] || '').toLowerCase()
+      return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal)
+    })
+  }, [assets, sortKey, sortDir])
 
   const filtered = useMemo(() => {
-    if (!search) return sorted;
-    const q = search.toLowerCase();
+    if (!search) return sorted
+    const q = search.toLowerCase()
     return sorted.filter((asset) =>
       asset.name.toLowerCase().includes(q) ||
       asset.type.toLowerCase().includes(q) ||
       asset.owner.toLowerCase().includes(q)
-    );
-  }, [sorted, search]);
+    )
+  }, [sorted, search])
 
-  const handleSort = (key) => {
+  const handleSort = (key: string) => {
     if (sortKey === key) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
     } else {
-      setSortKey(key);
-      setSortDir('asc');
+      setSortKey(key)
+      setSortDir('asc')
     }
-  };
+  }
 
-  if (error) return <div className="notice-panel error"><strong>Unable to load scoping data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>;
-  if (!artifacts) return <ScopingLoading />;
+  if (error) return <div className="notice-panel error"><strong>Unable to load scoping data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>
+  if (!artifacts) return <ScopingLoading />
 
-  const sortIcon = (columnKey) => {
-    if (sortKey !== columnKey) return <span className="sort-indicator">&#x2195;</span>;
-    return <span className="sort-indicator active">{sortDir === 'asc' ? '&#x2191;' : '&#x2193;'}</span>;
-  };
+  const sortIcon = (columnKey: string) => {
+    if (sortKey !== columnKey) return <span className="sort-indicator">&#x2195;</span>
+    return <span className="sort-indicator active">{sortDir === 'asc' ? '&#x2191;' : '&#x2193;'}</span>
+  }
 
   return (
     <div className="page-stack">
@@ -101,6 +102,7 @@ const Scoping = () => {
           onExport={() => api.exportAssetsCsv()}
           onImport={(file) => api.importAssetsCsv(file)}
           label="Assets"
+          acceptReset={false}
         />
       ) : (
         <div className="static-notice">CSV import and export require a live backend. Start the API server to unlock these features.</div>
@@ -186,7 +188,7 @@ const Scoping = () => {
         <p className="table-footer">{filtered.length} of {assets.length} assets</p>
       </section>
     </div>
-  );
-};
+  )
+}
 
-export default Scoping;
+export default Scoping

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 
-import { api } from '../api';
-import Skeleton from '../components/Skeleton';
+import { api } from '../api'
+import Skeleton from '../components/Skeleton'
+import type { AttackPath, WorkshopArtifacts } from '../types/api'
 
 const ValidationLoading = () => (
   <div className="page-stack">
@@ -20,24 +21,24 @@ const ValidationLoading = () => (
       ))}
     </section>
   </div>
-);
+)
 
 const Validation = () => {
-  const [paths, setPaths] = useState([]);
-  const [artifacts, setArtifacts] = useState(null);
-  const [error, setError] = useState(null);
+  const [paths, setPaths] = useState<AttackPath[]>([])
+  const [artifacts, setArtifacts] = useState<WorkshopArtifacts | null>(null)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     Promise.all([api.getAttackPaths(), api.getWorkshopArtifacts()])
       .then(([pathData, artifactData]) => {
-        setPaths(pathData);
-        setArtifacts(artifactData);
+        setPaths(pathData)
+        setArtifacts(artifactData)
       })
-      .catch(setError);
-  }, []);
+      .catch(setError)
+  }, [])
 
-  if (error) return <div className="notice-panel error"><strong>Unable to load validation data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>;
-  if (!artifacts) return <ValidationLoading />;
+  if (error) return <div className="notice-panel error"><strong>Unable to load validation data.</strong> The backend may be unavailable.<div className="error-detail">{error.message}</div></div>
+  if (!artifacts) return <ValidationLoading />
 
   return (
     <div className="page-stack">
@@ -104,7 +105,7 @@ const Validation = () => {
         </div>
       </section>
     </div>
-  );
-};
+  )
+}
 
-export default Validation;
+export default Validation
