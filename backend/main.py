@@ -1,5 +1,6 @@
 import csv
 import io
+import os
 from typing import Any
 
 from fastapi import FastAPI, File, HTTPException, Query, UploadFile, status
@@ -36,16 +37,12 @@ MAX_ROWS = 10_000
 
 app = FastAPI(title="CTEM Leader Lab API")
 
+_default_origins = "http://localhost:5173,http://localhost:5174,http://localhost:5175,http://127.0.0.1:5173,http://127.0.0.1:5174,http://127.0.0.1:5175"
+_cors_origins = os.environ.get("CORS_ORIGINS", _default_origins).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:5175",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:5174",
-        "http://127.0.0.1:5175",
-    ],
+    allow_origins=[origin.strip() for origin in _cors_origins if origin.strip()],
     allow_credentials=True,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],

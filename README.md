@@ -48,6 +48,31 @@ This is not a scanner. It is a leadership workbench for learning the CTEM operat
 
 ## Quick Start
 
+### Using Docker (recommended)
+
+[Install Docker](https://docs.docker.com/get-docker/), then run a single command:
+
+```bash
+make up
+```
+
+Or without `make`:
+
+```bash
+docker compose up --build -d
+```
+
+Open **http://localhost:8080**. The app loads with realistic demo data, and all features (CSV import/export, sessions, executive summary) work immediately.
+
+To stop:
+
+```bash
+make down
+# or: docker compose down
+```
+
+### Manual development setup
+
 Backend:
 
 ```bash
@@ -58,7 +83,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-Frontend:
+Frontend (separate terminal):
 
 ```bash
 cd frontend
@@ -68,7 +93,9 @@ npm run dev
 
 Open `http://localhost:5173`.
 
-The frontend also includes static demo data under `frontend/public/api`, so the GitHub Pages build works without a running backend.
+### Static demo (no backend needed)
+
+The frontend includes pre-baked JSON data under `frontend/public/api/`, so the GitHub Pages build works entirely without a running backend. Some features (CSV import/export, sessions, reset) require a live backend.
 
 ## Screenshots
 

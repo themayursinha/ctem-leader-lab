@@ -1,5 +1,9 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const isLiveMode = !!API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const isLiveMode = !!import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_LIVE === 'true';
+
+function apiUrl(path) {
+  return API_BASE_URL ? `${API_BASE_URL}${path}` : path;
+}
 
 async function getJson(path) {
   const staticName = path.replace('/api/', '');
@@ -14,7 +18,7 @@ async function getJson(path) {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}${path}`);
+    const response = await fetch(apiUrl(path));
     if (!response.ok) {
       throw new Error(`API request failed: ${response.status} ${path}`);
     }
@@ -29,7 +33,7 @@ async function getJson(path) {
 }
 
 async function getBlob(path) {
-  const response = await fetch(`${API_BASE_URL}${path}`);
+  const response = await fetch(apiUrl(path));
   if (!response.ok) {
     throw new Error(`API request failed: ${response.status} ${path}`);
   }
@@ -50,7 +54,7 @@ function triggerDownload(blob, filename) {
 async function postFile(path, file) {
   const formData = new FormData();
   formData.append('file', file);
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(apiUrl(path), {
     method: 'POST',
     body: formData,
   });
@@ -102,7 +106,7 @@ export const api = {
   },
 
   async resetData() {
-    const response = await fetch(`${API_BASE_URL}/api/reset?X-Confirm-Reset=true`, {
+    const response = await fetch(apiUrl('/api/reset?X-Confirm-Reset=true'), {
       method: 'POST',
     });
     if (!response.ok) {
@@ -113,7 +117,7 @@ export const api = {
   },
 
   async saveSession(name) {
-    const response = await fetch(`${API_BASE_URL}/api/sessions?name=${encodeURIComponent(name)}`, {
+    const response = await fetch(apiUrl(`/api/sessions?name=${encodeURIComponent(name)}`), {
       method: 'POST',
     });
     if (!response.ok) {
@@ -124,7 +128,7 @@ export const api = {
   },
 
   async listSessions() {
-    const response = await fetch(`${API_BASE_URL}/api/sessions`);
+    const response = await fetch(apiUrl('/api/sessions'));
     if (!response.ok) {
       throw new Error(`List sessions failed: ${response.status}`);
     }
@@ -132,7 +136,7 @@ export const api = {
   },
 
   async loadSession(sessionId) {
-    const response = await fetch(`${API_BASE_URL}/api/sessions/${sessionId}/load`, {
+    const response = await fetch(apiUrl(`/api/sessions/${sessionId}/load`), {
       method: 'POST',
     });
     if (!response.ok) {
@@ -143,7 +147,7 @@ export const api = {
   },
 
   async deleteSession(sessionId) {
-    const response = await fetch(`${API_BASE_URL}/api/sessions/${sessionId}`, {
+    const response = await fetch(apiUrl(`/api/sessions/${sessionId}`), {
       method: 'DELETE',
     });
     if (!response.ok) {
@@ -154,7 +158,7 @@ export const api = {
   },
 
   async getExecutiveSummary(format = 'markdown') {
-    const response = await fetch(`${API_BASE_URL}/api/executive-summary?format=${format}`);
+    const response = await fetch(apiUrl(`/api/executive-summary?format=${format}`));
     if (!response.ok) {
       throw new Error(`Executive summary failed: ${response.status}`);
     }
