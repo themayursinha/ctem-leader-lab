@@ -14,6 +14,7 @@ from app.db.models import (
     BusinessServiceModel,
     ExposureModel,
     MaturityDomainModel,
+    OrganizationModel,
     RemediationActionModel,
     SessionModel,
 )
@@ -57,8 +58,13 @@ class DataService:
         self._seed_all()
 
     def _seed_all(self) -> None:
+        org = self._db.query(OrganizationModel).first()
+        if not org:
+            org = OrganizationModel(name="Northstar Financial Services")
+            self._db.add(org)
+            self._db.flush()
         for bs in seed_data.BUSINESS_SERVICES:
-            self._db.add(BusinessServiceModel(**bs.model_dump()))
+            self._db.add(BusinessServiceModel(**bs.model_dump(), organization_id=org.id))
         for a in seed_data.ASSETS:
             self._db.add(AssetModel(**a.model_dump()))
         for e in seed_data.EXPOSURES:

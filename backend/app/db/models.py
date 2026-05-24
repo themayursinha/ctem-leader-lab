@@ -11,6 +11,31 @@ def _utcnow():
     return datetime.now(timezone.utc)
 
 
+class OrganizationModel(Base):
+    __tablename__ = "organizations"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String(200), nullable=False, unique=True)
+    created_at = Column(String(30), nullable=False, default=lambda: _utcnow().isoformat())
+
+    users = relationship("UserModel", back_populates="organization", cascade="all, delete-orphan")
+    business_services = relationship("BusinessServiceModel", back_populates="organization", cascade="all, delete-orphan")
+
+
+class UserModel(Base):
+    __tablename__ = "users"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    email = Column(String(255), nullable=False, unique=True, index=True)
+    password_hash = Column(String(255), nullable=False)
+    name = Column(String(200), nullable=False)
+    organization_id = Column(String, ForeignKey("organizations.id"), nullable=False, index=True)
+    role = Column(String(20), nullable=False, default="viewer")
+    created_at = Column(String(30), nullable=False, default=lambda: _utcnow().isoformat())
+
+    organization = relationship("OrganizationModel", back_populates="users")
+
+
 class BusinessServiceModel(Base):
     __tablename__ = "business_services"
 
@@ -26,7 +51,9 @@ class BusinessServiceModel(Base):
     crown_jewel_asset_ids = Column(JSON, nullable=False, default=list)
     in_scope = Column(Boolean, nullable=False, default=False)
     scope_reason = Column(Text, nullable=False, default="")
+    organization_id = Column(String, ForeignKey("organizations.id"), nullable=False, index=True)
 
+    organization = relationship("OrganizationModel", back_populates="business_services")
     assets = relationship("AssetModel", back_populates="service", cascade="all, delete-orphan")
     attack_paths = relationship("AttackPathModel", back_populates="service", cascade="all, delete-orphan")
 

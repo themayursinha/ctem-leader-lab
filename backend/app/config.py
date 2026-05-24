@@ -9,6 +9,9 @@ class Settings(BaseSettings):
         "http://localhost:8080",
     ]
     admin_token: str | None = None
+    jwt_secret: str = "change-me-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 1440
     debug: bool = False
 
     model_config = {"env_prefix": "ctem_", "env_file": ".env"}
