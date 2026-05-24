@@ -31,8 +31,8 @@ class TestCoreApi:
         assert resp.status_code == 200
         data = resp.json()
         ids = [s["id"] for s in data]
-        assert "svc-payments" in ids
-        assert "svc-marketing" in ids
+        assert any(i.startswith("svc-payments-") for i in ids)
+        assert any(i.startswith("svc-marketing-") for i in ids)
 
     def test_assets(self, client: TestClient):
         resp = client.get("/api/assets")
@@ -67,7 +67,7 @@ class TestCoreApi:
         data = resp.json()
         assert len(data) >= 2
         path_ids = [p["id"] for p in data]
-        assert "path-ci-to-data" in path_ids
+        assert any(i.startswith("path-ci-to-data-") for i in path_ids)
 
     def test_remediation_actions(self, client: TestClient):
         resp = client.get("/api/remediation-actions")
@@ -173,10 +173,12 @@ class TestCsvImport:
         return {"X-CTEM-Admin-Token": ADMIN_TOKEN}
 
     def test_import_assets_valid(self, client: TestClient):
+        services = client.get("/api/business-services").json()
+        svc_id = next(s["id"] for s in services if s["id"].startswith("svc-payments-"))
         rows = [
             {
                 "id": "test-asset-1", "name": "Test Asset", "type": "Server",
-                "service_id": "svc-payments", "owner": "Test", "environment": "Production",
+                "service_id": svc_id, "owner": "Test", "environment": "Production",
                 "criticality": "High", "crown_jewel": "false", "internet_exposed": "true",
                 "reachable_from_internet": "Direct", "tags": "test",
             }
@@ -189,10 +191,12 @@ class TestCsvImport:
         assert data["errors"] == []
 
     def test_import_invalid_enum_fails(self, client: TestClient):
+        services = client.get("/api/business-services").json()
+        svc_id = next(s["id"] for s in services if s["id"].startswith("svc-payments-"))
         rows = [
             {
                 "id": "bad-asset", "name": "Bad", "type": "Server",
-                "service_id": "svc-payments", "owner": "Test", "environment": "Production",
+                "service_id": svc_id, "owner": "Test", "environment": "Production",
                 "criticality": "InvalidEnum", "crown_jewel": "false", "internet_exposed": "true",
                 "reachable_from_internet": "Direct", "tags": "",
             }

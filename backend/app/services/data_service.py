@@ -72,31 +72,63 @@ class DataService:
         return org_id
 
     def _seed_all(self, org_id: str) -> None:
+        id_map: dict[str, str] = {}
+
+        def _new_id(prefix: str) -> str:
+            key = f"{prefix}-{str(uuid.uuid4())[:8]}"
+            id_map[prefix] = key
+            return key
+
         for bs in seed_data.BUSINESS_SERVICES:
-            self._db.add(BusinessServiceModel(**bs.model_dump(), organization_id=org_id))
+            bs_id = _new_id(bs.id)
+            self._db.add(BusinessServiceModel(**bs.model_dump(exclude={"id"}), id=bs_id, organization_id=org_id))
+            id_map[bs.id] = bs_id
+
         for a in seed_data.ASSETS:
-            self._db.add(AssetModel(**a.model_dump()))
+            a_dict = a.model_dump(exclude={"id"})
+            a_dict["id"] = _new_id(a.id)
+            a_dict["service_id"] = id_map.get(a.service_id, a.service_id)
+            self._db.add(AssetModel(**a_dict))
+            id_map[a.id] = a_dict["id"]
+
         for e in seed_data.EXPOSURES:
-            self._db.add(ExposureModel(**e.model_dump()))
+            e_dict = e.model_dump(exclude={"id"})
+            e_dict["id"] = _new_id(e.id)
+            e_dict["asset_id"] = id_map.get(e.asset_id, e.asset_id)
+            self._db.add(ExposureModel(**e_dict))
+            id_map[e.id] = e_dict["id"]
+
         for ap in seed_data.ATTACK_PATHS:
-            ap_dict = ap.model_dump(exclude={"steps"})
-            ap_model = AttackPathModel(**ap_dict)
+            ap_dict = ap.model_dump(exclude={"steps", "id"})
+            ap_id = _new_id(ap.id)
+            ap_model = AttackPathModel(**ap_dict, id=ap_id)
+            ap_model.business_service_id = id_map.get(ap.business_service_id, ap.business_service_id)
             for step in ap.steps:
                 ap_model.steps.append(AttackPathStepModel(
-                    attack_path_id=ap.id,
+                    attack_path_id=ap_id,
                     order=step.order,
                     title=step.title,
-                    asset_id=step.asset_id,
+                    asset_id=id_map.get(step.asset_id, step.asset_id),
                     technique=step.technique,
                     validation=step.validation,
                     control_gap=step.control_gap,
                 ))
             self._db.add(ap_model)
+
         for m in seed_data.MATURITY:
-            self._db.add(MaturityDomainModel(name=m.name, score=m.score, target=m.target,
-                                             current_state=m.current_state, next_step=m.next_step))
+            existing = self._db.query(MaturityDomainModel).filter(
+                MaturityDomainModel.name == m.name
+            ).first()
+            if existing is None:
+                self._db.add(MaturityDomainModel(
+                    name=m.name, score=m.score, target=m.target,
+                    current_state=m.current_state, next_step=m.next_step,
+                ))
         for r in seed_data.REMEDIATION_ACTIONS:
-            self._db.add(RemediationActionModel(**r.model_dump()))
+            r_dict = r.model_dump(exclude={"id"})
+            r_dict["id"] = _new_id(r.id)
+            r_dict["exposure_id"] = id_map.get(r.exposure_id, r.exposure_id)
+            self._db.add(RemediationActionModel(**r_dict))
         self._db.commit()
 
     # --- Business services ---
@@ -112,7 +144,14 @@ class DataService:
 
     def get_assets(self) -> list[Asset]:
         self._seed_if_empty()
-        return [Asset.model_validate(a) for a in self._asset_repo.all()]
+        org_id = self._resolve_org_id()
+        models = (
+            self._db.query(AssetModel)
+            .join(BusinessServiceModel, AssetModel.service_id == BusinessServiceModel.id)
+            .filter(BusinessServiceModel.organization_id == org_id)
+            .all()
+        )
+        return [Asset.model_validate(a) for a in models]
 
     def replace_assets(self, new_assets: list[Asset]) -> None:
         self._asset_repo.delete_all()
@@ -124,7 +163,15 @@ class DataService:
 
     def get_exposures(self) -> list[Exposure]:
         self._seed_if_empty()
-        return [Exposure.model_validate(e) for e in self._exposure_repo.all()]
+        org_id = self._resolve_org_id()
+        models = (
+            self._db.query(ExposureModel)
+            .join(AssetModel, ExposureModel.asset_id == AssetModel.id)
+            .join(BusinessServiceModel, AssetModel.service_id == BusinessServiceModel.id)
+            .filter(BusinessServiceModel.organization_id == org_id)
+            .all()
+        )
+        return [Exposure.model_validate(e) for e in models]
 
     def replace_exposures(self, new_exposures: list[Exposure]) -> None:
         self._exposure_repo.delete_all()
@@ -136,7 +183,16 @@ class DataService:
 
     def get_remediation_actions(self) -> list[RemediationAction]:
         self._seed_if_empty()
-        return [RemediationAction.model_validate(r) for r in self._remediation_repo.all()]
+        org_id = self._resolve_org_id()
+        models = (
+            self._db.query(RemediationActionModel)
+            .join(ExposureModel, RemediationActionModel.exposure_id == ExposureModel.id)
+            .join(AssetModel, ExposureModel.asset_id == AssetModel.id)
+            .join(BusinessServiceModel, AssetModel.service_id == BusinessServiceModel.id)
+            .filter(BusinessServiceModel.organization_id == org_id)
+            .all()
+        )
+        return [RemediationAction.model_validate(r) for r in models]
 
     def replace_remediation_actions(self, new_actions: list[RemediationAction]) -> None:
         self._remediation_repo.delete_all()

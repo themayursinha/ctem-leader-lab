@@ -9,9 +9,8 @@ class TestScoringEngine:
     def test_medium_secret_outranks_isolated_high_cvss(self, client: TestClient):
         resp = client.get("/api/prioritized-exposures")
         data = resp.json()
-        items = {item["exposure_id"]: item for item in data}
-        secret = items.get("exp-ci-token")
-        isolated_cve = items.get("exp-dev-wiki-cve")
+        secret = next((item for item in data if item["exposure_id"].startswith("exp-ci-token-")), None)
+        isolated_cve = next((item for item in data if item["exposure_id"].startswith("exp-dev-wiki-cve-")), None)
         assert secret is not None
         assert isolated_cve is not None
         assert secret["ctem_score"] > isolated_cve["ctem_score"]
