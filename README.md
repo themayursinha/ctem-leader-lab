@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-v0.1.0-00d084">
+  <img alt="Version" src="https://img.shields.io/badge/version-v0.4.0-00d084">
   <a href="https://github.com/themayursinha/ctem-leader-lab/actions/workflows/ci.yml">
     <img alt="CI" src="https://github.com/themayursinha/ctem-leader-lab/actions/workflows/ci.yml/badge.svg">
   </a>
@@ -175,10 +175,11 @@ npm run build
 
 ## Roadmap
 
-- `v0.1.0`: Scenario-driven CTEM Leader Lab MVP.
-- `v0.2.0`: CSV import/export for assets, exposures, and remediation actions.
-- `v0.3.0`: Saved workshop sessions and exportable executive summary.
-- `v0.4.0`: Optional integrations for scanner, cloud, identity, and ticketing data.
+- ~~`v0.1.0`: Scenario-driven CTEM Leader Lab MVP.~~
+- ~~`v0.2.0`: CSV import/export for assets, exposures, and remediation actions.~~
+- ~~`v0.3.0`: Saved workshop sessions and exportable executive summary.~~
+- ~~`v0.4.0`: Docker, onboarding, UX polish, error handling, accessibility.~~
+- `v0.5.0`: Optional integrations for scanner, cloud, identity, and ticketing data.
 
 ## Contributing
 
