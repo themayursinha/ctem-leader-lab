@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { api } from '../api';
+import Tooltip from '../components/Tooltip';
 
 const Prioritization = ({ DecisionBadge }) => {
   const [risks, setRisks] = useState([]);
@@ -17,6 +18,13 @@ const Prioritization = ({ DecisionBadge }) => {
 
   const mediumSecret = risks.find((risk) => risk.exposure_id === 'exp-ci-token');
   const isolatedCve = risks.find((risk) => risk.exposure_id === 'exp-dev-wiki-cve');
+
+  const decisionTooltip = {
+    act: 'Immediate remediation required — active threat or critical business impact.',
+    attend: 'High priority — remediate in the current sprint cycle.',
+    monitor: 'Track closely — no immediate action but conditions may change.',
+    track: 'Low priority — accepted for now, re-evaluate in future cycles.',
+  };
 
   return (
     <div className="page-stack">
@@ -45,7 +53,9 @@ const Prioritization = ({ DecisionBadge }) => {
         {risks.map((risk) => (
           <article className="risk-card" key={risk.exposure_id}>
             <div className="risk-score">
-              <strong>{risk.ctem_score}</strong>
+              <Tooltip label="Composite score (0–100) based on business impact, attacker utility, validation confidence, and feasibility">
+                <strong>{risk.ctem_score}</strong>
+              </Tooltip>
               <span>CTEM score</span>
             </div>
             <div className="risk-body">
@@ -54,11 +64,17 @@ const Prioritization = ({ DecisionBadge }) => {
                   <h2>{risk.title}</h2>
                   <p>{risk.description}</p>
                 </div>
-                <DecisionBadge value={risk.decision} />
+                <Tooltip label={decisionTooltip[risk.decision.toLowerCase()] || ''}>
+                  <DecisionBadge value={risk.decision} />
+                </Tooltip>
               </div>
               <div className="risk-meta">
-                <span>{risk.exposure_type}</span>
-                <span>{risk.severity} source severity</span>
+                <Tooltip label="Source domain of the exposure finding">
+                  <span>{risk.exposure_type}</span>
+                </Tooltip>
+                <Tooltip label="Original severity rating from the source system">
+                  <span>{risk.severity} source severity</span>
+                </Tooltip>
                 <span>{risk.owner}</span>
                 <span>{risk.sla}</span>
               </div>

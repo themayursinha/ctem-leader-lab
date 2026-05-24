@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   Activity,
+  Book,
   Bookmark,
   ClipboardList,
   Crosshair,
@@ -14,12 +15,16 @@ import {
 
 import { api } from './api';
 import Discovery from './views/Discovery';
+import Guide from './views/Guide';
 import Mobilization from './views/Mobilization';
 import Prioritization from './views/Prioritization';
 import Scoping from './views/Scoping';
 import Validation from './views/Validation';
 import Sessions from './views/Sessions';
 import WorkshopPack from './views/WorkshopPack';
+
+const WELCOME_KEY = 'ctem-welcome-dismissed';
+const BANNER_KEY = 'ctem-demo-banner-dismissed';
 
 const LoadingState = ({ label = 'Loading CTEM data...' }) => (
   <div className="notice-panel">{label}</div>
@@ -32,6 +37,64 @@ const ErrorState = ({ error }) => (
 const DecisionBadge = ({ value }) => (
   <span className={`badge decision-${String(value).toLowerCase()}`}>{value}</span>
 );
+
+const WelcomeModal = () => {
+  const [visible, setVisible] = useState(!localStorage.getItem(WELCOME_KEY));
+
+  const dismiss = () => {
+    localStorage.setItem(WELCOME_KEY, 'true');
+    setVisible(false);
+  };
+
+  if (!visible) return null;
+
+  return (
+    <div className="modal-overlay" onClick={dismiss}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <h2>Welcome to CTEM Leader Lab</h2>
+        <p className="modal-subtitle">An interactive workbench for security leaders moving from vulnerability management to Continuous Threat Exposure Management.</p>
+        <div className="modal-features">
+          <div className="modal-feature">
+            <strong>Five CTEM Stages</strong>
+            <span>Navigate Scoping, Discovery, Prioritization, Validation, and Mobilization from the sidebar.</span>
+          </div>
+          <div className="modal-feature">
+            <strong>Pre-loaded Demo</strong>
+            <span>The app ships with realistic but fictional data so you can explore every feature immediately.</span>
+          </div>
+          <div className="modal-feature">
+            <strong>Sessions &amp; Export</strong>
+            <span>Save your workspace, load previous sessions, export CSVs, and generate executive summaries.</span>
+          </div>
+          <div className="modal-feature">
+            <strong>Workshop Pack</strong>
+            <span>Generate a facilitator-ready takeaway with templates and a 30/60/90-day roadmap.</span>
+          </div>
+        </div>
+        <p className="modal-hint">Start with the <strong>Dashboard</strong> for a program overview, then follow the stages in order.</p>
+        <button className="tool-button modal-cta" onClick={dismiss}>Get started</button>
+      </div>
+    </div>
+  );
+};
+
+const DemoBanner = () => {
+  const [visible, setVisible] = useState(!localStorage.getItem(BANNER_KEY));
+
+  const dismiss = () => {
+    localStorage.setItem(BANNER_KEY, 'true');
+    setVisible(false);
+  };
+
+  if (!visible) return null;
+
+  return (
+    <div className="demo-banner">
+      <span>This is a demo with fictional data. Use it to explore CTEM workflows — no real systems or data are connected.</span>
+      <button className="demo-banner-close" onClick={dismiss} aria-label="Dismiss demo notice">&times;</button>
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const [summary, setSummary] = useState(null);
@@ -170,9 +233,13 @@ function App() {
             <SidebarItem to="/workshop-pack" icon={ClipboardList} label="Workshop Pack" />
             <div className="nav-section-label">Workspace</div>
             <SidebarItem to="/sessions" icon={Bookmark} label="Sessions" />
+            <div className="nav-section-label">Reference</div>
+            <SidebarItem to="/guide" icon={Book} label="User Guide" />
           </nav>
         </aside>
         <main className="main-content">
+          <DemoBanner />
+          <WelcomeModal />
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/scoping" element={<Scoping />} />
@@ -182,6 +249,7 @@ function App() {
             <Route path="/mobilization" element={<Mobilization DecisionBadge={DecisionBadge} />} />
             <Route path="/workshop-pack" element={<WorkshopPack />} />
             <Route path="/sessions" element={<Sessions />} />
+            <Route path="/guide" element={<Guide />} />
           </Routes>
         </main>
       </div>

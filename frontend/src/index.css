@@ -989,6 +989,249 @@ dd {
   animation: spin 1s linear infinite;
 }
 
+/* ── Tooltip ── */
+.tooltip-wrapper {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dashed var(--muted);
+}
+
+.tooltip-wrapper::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  max-width: 360px;
+  white-space: normal;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #2a2f3a;
+  color: #f4f6f8;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.45;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 100;
+}
+
+.tooltip-wrapper:hover::after {
+  opacity: 1;
+}
+
+/* ── Welcome Modal ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  padding: 20px;
+}
+
+.modal-content {
+  width: min(560px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 32px;
+  text-align: center;
+}
+
+.modal-content h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.modal-subtitle {
+  margin: 12px 0 0;
+  color: var(--soft);
+  line-height: 1.55;
+}
+
+.modal-features {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0;
+  text-align: left;
+}
+
+.modal-feature {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+  padding: 14px;
+}
+
+.modal-feature strong {
+  display: block;
+  color: var(--cyan);
+  font-size: 0.88rem;
+}
+
+.modal-feature span {
+  display: block;
+  margin-top: 4px;
+  color: var(--soft);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.modal-hint {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.modal-cta {
+  width: 100%;
+}
+
+/* ── Demo Data Banner ── */
+.demo-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 8px;
+  background: rgba(251, 191, 36, 0.08);
+  padding: 10px 16px;
+  margin-bottom: 20px;
+  color: var(--amber);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.demo-banner span {
+  flex: 1;
+}
+
+.demo-banner-close {
+  flex: 0 0 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--amber);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.demo-banner-close:hover {
+  background: rgba(251, 191, 36, 0.15);
+}
+
+/* ── Guide Page ── */
+.guide-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.guide-toc {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: sticky;
+  top: 20px;
+}
+
+.guide-toc-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.guide-toc-item:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.guide-toc-item.active {
+  background: var(--surface-2);
+  color: var(--cyan);
+}
+
+.guide-content {
+  min-width: 0;
+}
+
+.guide-content p {
+  margin: 12px 0 0;
+  color: var(--soft);
+  line-height: 1.65;
+}
+
+.guide-dl {
+  margin: 12px 0 0;
+}
+
+.guide-dl dt {
+  margin-top: 16px;
+  text-transform: none;
+  color: var(--text);
+  font-size: 0.88rem;
+}
+
+.guide-dl dd {
+  margin: 4px 0 0;
+  padding-left: 0;
+  color: var(--soft);
+  line-height: 1.55;
+}
+
+.guide-dl.glossary dt {
+  margin-top: 20px;
+}
+
+.guide-list {
+  margin: 12px 0 0;
+  padding-left: 20px;
+  color: var(--soft);
+  line-height: 1.65;
+}
+
+.guide-list li {
+  margin-top: 8px;
+}
+
+@media (max-width: 1100px) {
+  .guide-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-toc {
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: static;
+    gap: 6px;
+  }
+
+  .guide-toc-item {
+    width: auto;
+  }
+}
+
 @media print {
   body {
     background: #fff;

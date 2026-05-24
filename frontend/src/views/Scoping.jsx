@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { api } from '../api';
 import CsvToolbar from '../components/CsvToolbar';
+import Tooltip from '../components/Tooltip';
 
 const Scoping = () => {
   const [services, setServices] = useState([]);
@@ -104,7 +105,7 @@ const Scoping = () => {
                 <th>Service</th>
                 <th>Owner</th>
                 <th>Exposure</th>
-                <th>Crown jewel</th>
+                <th><Tooltip label="An asset so critical to the business that its compromise would cause significant operational or reputational harm">Crown jewel</Tooltip></th>
               </tr>
             </thead>
             <tbody>
@@ -113,7 +114,7 @@ const Scoping = () => {
                   <td><strong>{asset.name}</strong><span>{asset.type}</span></td>
                   <td>{services.find((service) => service.id === asset.service_id)?.name}</td>
                   <td>{asset.owner}</td>
-                  <td>{asset.reachable_from_internet}</td>
+                  <td><Tooltip label="Whether this asset is reachable from the public internet">{asset.reachable_from_internet}</Tooltip></td>
                   <td>{asset.crown_jewel ? 'Yes' : 'No'}</td>
                 </tr>
               ))}

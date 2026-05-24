@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { api } from '../api';
 import CsvToolbar from '../components/CsvToolbar';
+import Tooltip from '../components/Tooltip';
 
 const Discovery = () => {
   const [exposures, setExposures] = useState([]);
@@ -91,8 +92,16 @@ const Discovery = () => {
                     <td>{service?.name}</td>
                     <td><span className={`badge severity-${exposure.severity.toLowerCase()}`}>{exposure.severity}</span></td>
                     <td>
-                      <span>{exposure.kev_signal ? 'Known exploited' : 'No KEV signal'}</span>
-                      <span>{Math.round(exposure.epss_probability * 100)}% EPSS-style</span>
+                      <span>
+                        <Tooltip label="CISA Known Exploited Vulnerabilities catalog — confirmed active exploitation in the wild">
+                          {exposure.kev_signal ? 'Known exploited' : 'No KEV signal'}
+                        </Tooltip>
+                      </span>
+                      <span>
+                        <Tooltip label="Exploit Prediction Scoring System — probability of exploitation within 30 days">
+                          {Math.round(exposure.epss_probability * 100)}% EPSS
+                        </Tooltip>
+                      </span>
                     </td>
                     <td>{exposure.evidence_confidence}</td>
                   </tr>
