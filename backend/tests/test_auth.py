@@ -26,6 +26,14 @@ class TestAuthRegister:
         assert resp.status_code == 409
         assert "already registered" in resp.json()["detail"]
 
+    def test_register_rejects_passwords_over_bcrypt_limit(self, client: TestClient):
+        resp = client.post("/api/auth/register", json={
+            "email": "long@example.com",
+            "password": "x" * 73,
+            "name": "Long Password",
+        })
+        assert resp.status_code == 422
+
 
 class TestAuthLogin:
     def test_login_success(self, client: TestClient):
@@ -54,6 +62,12 @@ class TestAuthLogin:
             "email": "nobody@example.com", "password": "pass",
         })
         assert resp.status_code == 401
+
+    def test_login_rejects_passwords_over_bcrypt_limit(self, client: TestClient):
+        resp = client.post("/api/auth/login", json={
+            "email": "nobody@example.com", "password": "x" * 73,
+        })
+        assert resp.status_code == 422
 
 
 class TestAuthMe:

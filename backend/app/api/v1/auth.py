@@ -11,14 +11,14 @@ router = APIRouter(tags=["Auth"])
 
 class RegisterRequest(BaseModel):
     email: str
-    password: str
+    password: str = Field(max_length=72)
     name: str
     organization_name: str = "Default"
 
 
 class LoginRequest(BaseModel):
     email: str
-    password: str
+    password: str = Field(max_length=72)
 
 
 class TokenResponse(BaseModel):
