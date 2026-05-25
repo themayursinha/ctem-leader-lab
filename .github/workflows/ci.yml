@@ -26,17 +26,17 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pip-audit
+          python -m pip install -r requirements.txt
+          python -m pip install pip-audit
 
       - name: Audit Python dependencies
-        run: pip-audit -r requirements.txt
+        run: python -m pip_audit -r requirements.txt
 
       - name: Run tests
-        run: pytest tests/test_api.py tests/test_auth.py tests/test_scoring.py
+        run: python -m pytest tests/test_api.py tests/test_auth.py tests/test_scoring.py
 
       - name: Integration tests (PostgreSQL via Testcontainers)
-        run: pytest tests/test_integration.py
+        run: python -m pytest tests/test_integration.py
 
   frontend:
     name: Frontend lint and build
