@@ -20,7 +20,7 @@
     "react-router-dom": "^7.15.0",
     "recharts": "^3.8.1",
     "typescript": "^6.0.3",
-    "zustand": "^5.0.13"
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
