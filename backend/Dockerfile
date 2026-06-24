@@ -15,8 +15,8 @@ RUN groupadd -r ctem && useradd -r -g ctem ctem
 
 WORKDIR /app
 
-COPY --from=builder /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
+COPY --from=builder /root/.local /home/ctem/.local
+ENV PATH=/home/ctem/.local/bin:$PATH
 
 COPY alembic.ini .
 COPY alembic/ alembic/
