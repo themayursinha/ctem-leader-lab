@@ -19,7 +19,7 @@
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.18.1",
     "recharts": "^3.9.1",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "zustand": "^5.0.13"
   },
   "devDependencies": {
