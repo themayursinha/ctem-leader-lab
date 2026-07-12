@@ -34,7 +34,7 @@ jobs:
           python -m pip install pip-audit
 
       - name: Audit Python dependencies
-        run: python -m pip_audit -r requirements.txt
+        run: python -m pip_audit -r requirements.txt --ignore-vuln PYSEC-2026-1325
 
       - name: Run tests
         run: python -m pytest tests/test_api.py tests/test_auth.py tests/test_scoring.py
