@@ -24,7 +24,10 @@ jobs:
         working-directory: backend
         run: |
           pip install pip-audit
-          pip-audit -r requirements.txt
+          # PYSEC-2026-1325: ecdsa==0.19.2 has no fix version available
+          # (latest PyPI version is still 0.19.2). Remove this ignore once
+          # upstream releases a fix. Revisit: https://github.com/tlsfuzzer/python-ecdsa
+          pip-audit -r requirements.txt --ignore-vuln PYSEC-2026-1325
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
         with:
