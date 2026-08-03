@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router'
 import { UserPlus, ShieldAlert } from 'lucide-react'
 
 import { api } from '../api'

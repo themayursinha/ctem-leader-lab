@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
-import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom'
+import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
   Activity,
