@@ -7,12 +7,12 @@ describe('Skeleton', () => {
     const { container } = render(<Skeleton />)
     const el = container.querySelector('.skeleton')
     expect(el).toBeInTheDocument()
-    expect(el).toHaveStyle({ width: '100%', height: '1rem', margin: '0' })
+    expect(el).toHaveStyle({ width: '100%', height: '16px', margin: '0px' })
   })
 
   it('renders with custom dimensions', () => {
     const { container } = render(<Skeleton width="50px" height="2rem" margin="8px" />)
     const el = container.querySelector('.skeleton')
-    expect(el).toHaveStyle({ width: '50px', height: '2rem', margin: '8px' })
+    expect(el).toHaveStyle({ width: '50px', height: '32px', margin: '8px' })
   })
 })
